@@ -7,30 +7,36 @@
 <meta name="description" content="Корпоративный турнир по Dota 2: 7 команд, групповой этап и плей-офф double elimination.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0c0f;
-    --bg-2: #11151a;
-    --panel: #151a20;
-    --panel-2: #1b2129;
-    --line: #2a323c;
-    --text: #e8e2d4;
-    --muted: #8f97a1;
-    --gold: #c9a15a;
-    --gold-2: #f0d08a;
-    --radiant: #5fae4d;
-    --dire: #c23c2a;
-    --dire-2: #ff5a3c;
+    --bg: #0d0e10;
+    --panel: #16181b;
+    --panel-2: #1c1f23;
+    --bar: #101113;
+    --line: #2a2d32;
+    --line-2: #383c42;
+    --text: #e6e1d8;
+    --muted: #8a8f96;
+    --dim: #5b6067;
+    --red: #c8392b;
+    --red-2: #ef5a42;
+    --radiant: #6fae3f;
+    --dire: #c8392b;
+    --dire-2: #ef5a42;
+    --gold: #c79c4a;
+    --gold-2: #e8c06f;
+    --head: "Oswald", "Arial Narrow", sans-serif;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    background: var(--bg);
     color: var(--text);
-    font: 16px/1.5 Inter, system-ui, sans-serif;
+    font: 16px/1.5 "PT Sans", system-ui, sans-serif;
     overflow-x: hidden;
+    background-color: var(--bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   a { color: inherit; }
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
@@ -38,210 +44,179 @@
   /* ---------- nav ---------- */
   nav {
     position: sticky; top: 0; z-index: 10;
-    background: rgba(10,12,15,.82);
-    backdrop-filter: blur(8px);
+    background: rgba(13,14,16,.94);
     border-bottom: 1px solid var(--line);
   }
-  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
-  .brand { font-family: "Cormorant SC", serif; font-weight: 700; letter-spacing: .12em; color: var(--gold-2); text-decoration: none; font-size: 18px; }
-  nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
-  nav ul a { text-decoration: none; white-space: nowrap; color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-  nav ul a:hover { color: var(--gold-2); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 54px; gap: 16px; }
+  .brand { font-family: var(--head); font-weight: 600; font-size: 20px; letter-spacing: .04em; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand::before { content: ""; width: 10px; height: 10px; background: var(--red); transform: rotate(45deg); }
+  nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
+  nav ul a { font-family: var(--head); text-decoration: none; white-space: nowrap; color: var(--muted); font-size: 15px; letter-spacing: .05em; text-transform: uppercase; }
+  nav ul a:hover { color: var(--text); }
 
   /* ---------- hero ---------- */
   .hero {
-    position: relative;
-    padding: 110px 0 90px;
-    text-align: center;
-    overflow: hidden;
-    background:
-      radial-gradient(ellipse 60% 70% at 0% 100%, rgba(95,174,77,.22), transparent 70%),
-      radial-gradient(ellipse 60% 70% at 100% 0%, rgba(194,60,42,.30), transparent 70%),
-      linear-gradient(180deg, #0d1014 0%, var(--bg) 100%);
+    position: relative; overflow: hidden;
     border-bottom: 1px solid var(--line);
+    background:
+      linear-gradient(135deg, rgba(111,174,63,.10) 0%, transparent 42%, transparent 58%, rgba(200,57,43,.14) 100%);
   }
-  .hero::before {
-    content: ""; position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(201,161,90,.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201,161,90,.06) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
-    pointer-events: none;
-  }
-  .hero .eyebrow {
-    display: inline-block; font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
-    color: var(--gold); border: 1px solid rgba(201,161,90,.4); padding: 6px 14px;
-  }
+  .hero .wrap { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 40px; padding-top: 72px; padding-bottom: 72px; }
+  .kicker { font-family: var(--head); text-transform: uppercase; letter-spacing: .12em; font-size: 15px; color: var(--red-2); }
   .hero h1 {
-    font-family: "Cormorant SC", serif; font-weight: 700;
-    font-size: clamp(56px, 13vw, 140px); line-height: 1; margin: 24px 0 8px;
-    letter-spacing: .06em;
-    background: linear-gradient(180deg, #fff3cf 0%, var(--gold-2) 35%, var(--gold) 70%, #7a5a26 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 6px 30px rgba(194,60,42,.35));
+    font-family: var(--head); font-weight: 700; text-transform: uppercase;
+    font-size: clamp(72px, 14vw, 168px); line-height: .9; margin: 12px 0 28px; letter-spacing: .01em;
+    color: var(--text);
+    text-shadow: 0 2px 0 #000, 0 0 40px rgba(200,57,43,.25);
   }
-  .dates { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
-  .dt {
-    min-width: 220px; padding: 14px 26px; text-align: center;
-    background: rgba(21,26,32,.75); border: 1px solid var(--line);
-    clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
-  }
-  .dt span { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; }
-  .dt b { display: block; font-family: "Cormorant SC", serif; font-size: 28px; color: var(--gold-2); line-height: 1.2; }
+  .dates { display: grid; gap: 0; max-width: 420px; border-top: 1px solid var(--line-2); }
+  .dt { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+  .dt span { color: var(--muted); font-size: 15px; }
+  .dt b { font-family: var(--head); font-weight: 500; font-size: 24px; letter-spacing: .02em; }
+  .dt.g b { color: var(--radiant); }
+  .dt.p b { color: var(--red-2); }
+  .minimap { width: 100%; max-width: 420px; justify-self: end; aspect-ratio: 1; border: 1px solid var(--line-2); background: #121411; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .minimap svg { display: block; width: 100%; height: 100%; }
 
   /* ---------- sections ---------- */
-  section { padding: 80px 0; }
+  section { padding: 72px 0; }
   section + section { border-top: 1px solid var(--line); }
-  .head { text-align: center; margin-bottom: 44px; }
-  .head h2 {
-    font-family: "Cormorant SC", serif; font-weight: 700; font-size: clamp(30px, 5vw, 44px);
-    margin: 0; letter-spacing: .08em; text-transform: uppercase; color: var(--text);
+  .head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid var(--line); position: relative; }
+  .head::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 64px; height: 3px; background: var(--red); }
+  .head h2 { font-family: var(--head); font-weight: 600; font-size: clamp(30px, 5vw, 42px); line-height: 1; margin: 0; text-transform: uppercase; letter-spacing: .02em; }
+  .head p { color: var(--muted); margin: 0; max-width: 560px; font-size: 15px; }
+
+  /* ---------- panels ---------- */
+  .panel { background: var(--panel); border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255,255,255,.03); }
+  .panel-title {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    padding: 10px 16px; background: var(--bar); border-bottom: 1px solid var(--line);
+    font-family: var(--head); font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--text);
   }
-  .head .rule { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; color: var(--gold); }
-  .head .rule::before, .head .rule::after { content: ""; width: 70px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
-  .head .rule::after { transform: scaleX(-1); }
-  .head p { color: var(--muted); margin: 14px auto 0; max-width: 620px; }
+  .panel-title span { font-family: "PT Sans", sans-serif; color: var(--muted); letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+  /* ---------- teams ---------- */
+  .teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .team { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc, var(--red)); }
+  .team-top { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bar); border-bottom: 1px solid var(--line); }
+  .logo {
+    width: 56px; height: 56px; flex: none; position: relative; overflow: hidden;
+    background: #0b0c0d; border: 1px solid var(--line-2);
+    box-shadow: inset 0 0 0 3px #0b0c0d, inset 0 0 0 4px rgba(255,255,255,.04);
+  }
+  .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .team-name { font-family: var(--head); font-weight: 600; font-size: 24px; line-height: 1.1; margin: 0; text-transform: uppercase; letter-spacing: .02em; }
+  .roster { list-style: none; margin: 0; padding: 4px 0; }
+  .roster li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 16px; }
+  .roster li + li { border-top: 1px solid rgba(42,45,50,.7); }
+  .roster .name { white-space: nowrap; }
+  .roster .nick { color: var(--muted); font-size: 14px; text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; }
+  .roster .nick.empty { color: var(--dim); }
+
+  /* ---------- group ---------- */
+  .group-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--line); }
+  th { font-family: var(--head); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  td.t { text-align: left; white-space: nowrap; }
+  td b { font-family: var(--head); font-weight: 600; font-size: 17px; }
+  tr:last-child td { border-bottom: 0; }
+  .zone { width: 4px; padding: 0; }
+  tr.z-ub .zone { background: var(--radiant); }
+  tr.z-lb .zone { background: var(--dire); }
+  tr.z-out .zone { background: #3a3d42; }
+  tr.z-out td { color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+
+  .cross { overflow-x: auto; margin-top: 20px; }
+  .cross table { min-width: 520px; }
+  .cross td, .cross th { padding: 8px 6px; border-right: 1px solid var(--line); }
+  .cross td:last-child, .cross th:last-child { border-right: 0; }
+  .cross td.self { background: repeating-linear-gradient(45deg, #121315, #121315 5px, #17191c 5px, #17191c 10px); }
+  .cross td.w { color: var(--radiant); font-family: var(--head); font-weight: 600; }
+  .cross td.l { color: var(--dire-2); font-family: var(--head); font-weight: 600; }
+  .cross td.e { color: #3a3d42; }
+  .cross td.sch { color: var(--gold-2); font-size: 12px; }
+
+  .mgroup { padding: 10px 16px 4px; font-family: var(--head); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .mrow { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
+  .mgroup + .mrow { border-top: 0; }
+  .mwhen { font-size: 13px; line-height: 1.25; color: var(--muted); }
+  .mwhen b { display: block; color: var(--text); font-size: 15px; font-weight: 700; }
+  .mrow.up .mwhen b { color: var(--gold-2); }
+  .mteams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; font-size: 15px; min-width: 0; }
+  .mteams .a { text-align: right; }
+  .mteams span { overflow-wrap: anywhere; }
+  .mteams .vs { font-family: var(--head); color: var(--dim); font-size: 13px; text-transform: uppercase; }
+  .mteams .w { color: var(--text); font-weight: 700; }
+  .mteams .w::after { content: " ✓"; color: var(--radiant); }
+  .mteams .a.w::after { content: ""; }
+  .mteams .a.w::before { content: "✓ "; color: var(--radiant); }
+  .mteams .l { color: var(--dim); }
+  .mempty { padding: 16px; color: var(--muted); font-size: 14px; }
+  .pending { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 16px 14px; }
+  .pending span { font-size: 12px; padding: 2px 8px; border: 1px solid var(--line); color: var(--muted); background: var(--bar); }
 
   /* ---------- playoff ---------- */
-  .bracket { background: var(--panel); border: 1px solid var(--line); padding: 20px 20px 16px; }
-  .bk-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .bracket { background: var(--panel); border: 1px solid var(--line); padding: 18px 18px 14px; }
+  .bk-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   .bk-legend i { display: inline-block; width: 26px; height: 0; vertical-align: middle; margin-right: 8px; }
   .lg-win { border-top: 2px solid var(--gold); }
   .lg-lose { border-top: 2px dashed var(--dire-2); }
   .bk-scroll { overflow-x: auto; padding-bottom: 6px; }
   .bk { position: relative; width: 1080px; height: 530px; margin: 0 auto; }
   .bk svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-  .bk-title { position: absolute; left: 30px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .bk-title { position: absolute; left: 30px; font-family: var(--head); font-size: 15px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
   .bk-title.ub { color: var(--radiant); top: 4px; }
   .bk-title.lb { color: var(--dire-2); top: 292px; }
-  .m { position: absolute; width: 220px; background: var(--panel-2); border: 1px solid var(--line); font-size: 14px; }
-  .m .label { display: flex; justify-content: space-between; height: 26px; align-items: center; padding: 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); background: rgba(201,161,90,.07); border-bottom: 1px solid var(--line); }
-  .m .label b { color: var(--text); font-weight: 700; }
-  .m .label span:last-child { color: var(--muted); }
+  .m { position: absolute; width: 220px; background: var(--panel-2); border: 1px solid var(--line-2); font-size: 14px; }
+  .m .label { display: flex; justify-content: space-between; height: 26px; align-items: center; padding: 0 10px; font-family: var(--head); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--bar); border-bottom: 1px solid var(--line); }
+  .m .label b { color: var(--text); font-weight: 600; }
   .m .slot { display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 33px; padding: 0 10px; }
   .m .slot + .slot { border-top: 1px solid var(--line); }
   .m .slot .who { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .m .slot .sc { color: var(--muted); }
-  .m .slot.lose .who { color: #e7907f; }
+  .m .slot .sc { color: var(--dim); }
+  .m .slot.lose .who { color: #d9877a; }
   .m .slot.lose .who::before { content: "↓ "; color: var(--dire-2); }
+  .m .slot.win .who { color: var(--muted); }
   .m .slot.win .who::before { content: "→ "; color: var(--gold); }
-  .m .slot.seed .who { color: var(--text); font-weight: 600; }
-  .m.gf { border-color: var(--gold); box-shadow: 0 0 30px rgba(201,161,90,.22); }
-  .m.gf .label { background: rgba(201,161,90,.18); }
-  .champ { position: absolute; width: 220px; text-align: center; font-family: "Cormorant SC", serif; font-size: 20px; color: var(--gold-2); }
+  .m .slot.seed .who { color: var(--text); font-weight: 700; }
+  .m.gf { border-color: var(--gold); }
+  .m.gf .label { color: var(--gold-2); }
+  .champ { position: absolute; width: 220px; text-align: center; font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; font-size: 16px; color: var(--gold-2); }
   .bk-hint { display: none; margin-top: 8px; font-size: 12px; color: var(--muted); }
   @media (max-width: 1140px) { .bk-hint { display: block; } }
 
-  /* ---------- teams ---------- */
-  .teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
-  .team {
-    background: linear-gradient(180deg, var(--panel-2), var(--panel));
-    border: 1px solid var(--line);
-    position: relative;
-    transition: border-color .2s, transform .2s;
-  }
-  .team:hover { border-color: rgba(201,161,90,.6); transform: translateY(-2px); }
-  .team-top { display: flex; align-items: center; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line); }
-  .logo {
-    width: 72px; height: 72px; flex: none; position: relative;
-    display: grid; place-items: center;
-    background: #0e1216;
-    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  }
-  .logo::before {
-    content: ""; position: absolute; inset: 2px;
-    clip-path: inherit;
-    background: radial-gradient(circle at 50% 35%, #26303a, #12171c);
-  }
-  .logo .ph { position: relative; font-family: "Cormorant SC", serif; font-weight: 700; font-size: 26px; color: var(--gold); }
-  .logo .ph small { display: block; font-family: Inter, sans-serif; font-size: 8px; letter-spacing: .14em; color: var(--muted); text-align: center; font-weight: 600; }
-  .logo img { position: relative; width: 100%; height: 100%; object-fit: cover; }
-  .logo-wrap { padding: 2px; background: linear-gradient(135deg, var(--gold-2), #6b4f22); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-  .team-name { font-family: "Cormorant SC", serif; font-weight: 700; font-size: 22px; margin: 0; letter-spacing: .04em; }
-  .team-meta { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
-  .roster { list-style: none; margin: 0; padding: 6px 0; }
-  .roster li { display: flex; flex-direction: column; gap: 1px; padding: 9px 18px; }
-  .roster li + li { border-top: 1px solid rgba(42,50,60,.6); }
-  .roster .name { font-weight: 600; white-space: nowrap; }
-  .roster .nick { color: var(--gold-2); font-size: 14px; overflow-wrap: anywhere; opacity: .85; }
-  .roster .nick.empty { color: var(--muted); }
-
-  /* ---------- group ---------- */
-  .group-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: start; }
-  .panel { background: var(--panel); border: 1px solid var(--line); }
-  .panel-title { padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 13px; text-transform: uppercase; letter-spacing: .14em; color: var(--gold); }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--line); }
-  th { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
-  td.t { text-align: left; font-weight: 600; white-space: nowrap; }
-  tr:last-child td { border-bottom: 0; }
-  .zone { width: 4px; padding: 0; }
-  tr.z-ub .zone { background: var(--radiant); }
-  tr.z-lb .zone { background: var(--dire); }
-  tr.z-out .zone { background: #3a3f46; }
-  tr.z-out td { color: var(--muted); }
-  .legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
-  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
-
-  .cross { overflow-x: auto; }
-  .cross table { min-width: 520px; }
-  .cross td, .cross th { padding: 8px 6px; border-right: 1px solid var(--line); }
-  .cross td:last-child, .cross th:last-child { border-right: 0; }
-  .cross td.self { background: repeating-linear-gradient(45deg, #12161b, #12161b 5px, #181d23 5px, #181d23 10px); }
-  .cross td.w { color: var(--radiant); font-weight: 700; }
-  .cross td.l { color: var(--dire-2); font-weight: 700; }
-  .cross td.e { color: #3c444e; }
-
-  .panel-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .panel-title span { color: var(--muted); letter-spacing: .04em; text-transform: none; font-size: 12px; }
-  .cross { margin-top: 24px; }
-  .cross td.sch { color: var(--gold); font-size: 12px; }
-  .mgroup { padding: 10px 18px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
-  .mrow { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; padding: 10px 18px; border-top: 1px solid var(--line); }
-  .mgroup + .mrow { border-top: 0; }
-  .mwhen { font-size: 13px; line-height: 1.25; color: var(--muted); }
-  .mwhen b { display: block; color: var(--text); font-size: 15px; }
-  .mrow.up .mwhen b { color: var(--gold-2); }
-  .mteams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; font-size: 15px; min-width: 0; }
-  .mteams .a { text-align: right; }
-  .mteams span { overflow-wrap: anywhere; }
-  .mteams .vs { font-family: "Cormorant SC", serif; color: var(--muted); font-size: 14px; }
-  .mteams .w { color: var(--gold-2); font-weight: 700; }
-  .mteams .l { color: var(--muted); }
-  .mempty { padding: 18px; color: var(--muted); font-size: 14px; }
-  .pending { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 18px 16px; }
-  .pending span { font-size: 12px; padding: 3px 8px; border: 1px dashed var(--line); color: var(--muted); }
-
   /* ---------- streams ---------- */
-  .streams { display: flex; justify-content: center; }
+  .streams { display: flex; }
   .streamer {
-    display: flex; align-items: center; gap: 18px; width: 100%; max-width: 520px;
-    padding: 20px 24px; text-decoration: none;
-    background: linear-gradient(135deg, rgba(145,70,255,.16), var(--panel) 60%);
-    border: 1px solid rgba(145,70,255,.45);
-    transition: border-color .2s, transform .2s;
+    display: flex; align-items: center; gap: 16px; width: 100%; max-width: 480px;
+    padding: 14px 16px; text-decoration: none;
+    background: var(--panel); border: 1px solid var(--line); border-left: 3px solid #9146ff;
   }
-  .streamer:hover { border-color: #a970ff; transform: translateY(-2px); }
-  .streamer .tw { width: 56px; height: 56px; flex: none; display: grid; place-items: center; background: #9146ff; color: #fff; }
+  .streamer:hover { background: var(--panel-2); }
+  .streamer .tw { width: 48px; height: 48px; flex: none; display: grid; place-items: center; background: #9146ff; color: #fff; }
   .streamer .sinfo { flex: 1; min-width: 0; }
-  .streamer .sinfo b { display: block; font-size: 22px; font-family: "Cormorant SC", serif; color: var(--text); }
+  .streamer .sinfo b { display: block; font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; }
   .streamer .sinfo small { color: var(--muted); font-size: 14px; }
-  .streamer .go { color: #bf94ff; font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .streamer .go { color: #bf94ff; font-size: 14px; white-space: nowrap; }
 
-  footer { padding: 36px 0; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+  footer { padding: 28px 0; color: var(--dim); font-size: 13px; border-top: 1px solid var(--line); }
 
   @media (max-width: 900px) {
     .group-grid { grid-template-columns: 1fr; }
+    .hero .wrap { grid-template-columns: 1fr; }
+    .minimap { display: none; }
   }
   @media (max-width: 640px) {
-    nav ul { gap: 10px; }
-    nav ul a { font-size: 11px; letter-spacing: .03em; }
-    .brand { font-size: 15px; }
-    section { padding: 56px 0; }
-    .hero { padding: 72px 0 60px; }
+    nav ul { gap: 12px; }
+    nav ul a { font-size: 13px; letter-spacing: .02em; }
+    .brand { font-size: 17px; }
+    .brand::before { width: 8px; height: 8px; }
+    section { padding: 52px 0; }
+    .hero .wrap { padding-top: 48px; padding-bottom: 48px; }
     .teams { grid-template-columns: 1fr; }
-    .dt { min-width: 0; flex: 1 1 100%; }
   }
 </style>
 </head>
@@ -249,7 +224,7 @@
 
 <nav>
   <div class="wrap">
-    <a class="brand" href="#top">ТУРИЧ</a>
+    <a class="brand" href="#top">Турич</a>
     <ul>
       <li><a href="#teams">Команды</a></li>
       <li><a href="#group">Группа</a></li>
@@ -261,11 +236,52 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <span class="eyebrow">Корпоративный турнир · Dota 2</span>
-    <h1>ТУРИЧ</h1>
-    <div class="dates">
-      <div class="dt"><span>Групповой этап</span><b>16–30 ноября</b></div>
-      <div class="dt"><span>Плей-офф</span><b>1–13 декабря</b></div>
+    <div>
+      <div class="kicker">Dota 2 · корпоративный турнир</div>
+      <h1>Турич</h1>
+      <div class="dates">
+        <div class="dt g"><span>Групповой этап</span><b>16–30 ноября</b></div>
+        <div class="dt p"><span>Плей-офф</span><b>1–13 декабря</b></div>
+      </div>
+    </div>
+    <div class="minimap" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <defs>
+          <pattern id="trees" width="9" height="9" patternUnits="userSpaceOnUse">
+            <circle cx="2.5" cy="2.5" r="2.3" fill="#1f2a17"/>
+            <circle cx="7" cy="6.8" r="2" fill="#1b2414"/>
+          </pattern>
+        </defs>
+        <rect width="200" height="200" fill="#151a12"/>
+        <rect width="200" height="200" fill="url(#trees)"/>
+        <!-- река -->
+        <path d="M-5 30 C 40 45, 70 80, 100 100 S 160 155, 205 170" stroke="#1c3442" stroke-width="16" fill="none"/>
+        <path d="M-5 30 C 40 45, 70 80, 100 100 S 160 155, 205 170" stroke="#24455a" stroke-width="6" fill="none" opacity=".6"/>
+        <!-- линии -->
+        <g stroke="#3a3626" stroke-width="7" fill="none" stroke-linecap="square">
+          <path d="M22 165 V22 H178"/>
+          <path d="M35 178 H178 V35"/>
+          <path d="M38 162 L162 38"/>
+        </g>
+        <!-- базы -->
+        <rect x="6" y="150" width="44" height="44" fill="#1d2e17" stroke="#6fae3f" stroke-opacity=".5"/>
+        <rect x="150" y="6" width="44" height="44" fill="#2e1714" stroke="#c8392b" stroke-opacity=".6"/>
+        <circle cx="26" cy="174" r="7" fill="#6fae3f"/>
+        <circle cx="174" cy="26" r="7" fill="#c8392b"/>
+        <!-- башни -->
+        <g fill="#6fae3f">
+          <rect x="19" y="125" width="6" height="6"/><rect x="19" y="90" width="6" height="6"/><rect x="19" y="58" width="6" height="6"/>
+          <rect x="57" y="140" width="6" height="6"/><rect x="77" y="120" width="6" height="6"/><rect x="92" y="105" width="6" height="6"/>
+          <rect x="70" y="175" width="6" height="6"/><rect x="108" y="175" width="6" height="6"/><rect x="146" y="175" width="6" height="6"/>
+        </g>
+        <g fill="#c8392b">
+          <rect x="52" y="19" width="6" height="6"/><rect x="92" y="19" width="6" height="6"/><rect x="128" y="19" width="6" height="6"/>
+          <rect x="104" y="89" width="6" height="6"/><rect x="118" y="74" width="6" height="6"/><rect x="137" y="55" width="6" height="6"/>
+          <rect x="175" y="142" width="6" height="6"/><rect x="175" y="108" width="6" height="6"/><rect x="175" y="70" width="6" height="6"/>
+        </g>
+        <!-- рошан -->
+        <circle cx="128" cy="124" r="4" fill="none" stroke="#e8c06f" stroke-width="1.5"/>
+      </svg>
     </div>
   </div>
 </header>
@@ -274,8 +290,7 @@
   <div class="wrap">
     <div class="head">
       <h2>Команды</h2>
-      <div class="rule">◆</div>
-      <p>Составы сбалансированы по ролям и рейтингу.</p>
+      <p>Составы собраны по ролям и рейтингу.</p>
     </div>
     <div class="teams" id="teams-list"></div>
   </div>
@@ -285,7 +300,6 @@
   <div class="wrap">
     <div class="head">
       <h2>Групповой этап</h2>
-      <div class="rule">◆</div>
       <p>Каждая команда играет с каждой по одному разу (Bo1). Время матчей команды назначают сами, до 30 ноября включительно.</p>
     </div>
 
@@ -320,7 +334,6 @@
   <div class="wrap">
     <div class="head">
       <h2>Плей-офф</h2>
-      <div class="rule">◆</div>
       <p>Double elimination. 1–4 места группы стартуют в верхней сетке, 5–6 — в нижней, 7 место выбывает.</p>
     </div>
 
@@ -339,7 +352,6 @@
   <div class="wrap">
     <div class="head">
       <h2>Стримеры</h2>
-      <div class="rule">◆</div>
       <p>Матчи турнира в прямом эфире.</p>
     </div>
     <div class="streams">
@@ -426,15 +438,15 @@ const MATCHES = [
 /* ===================== дальше — отрисовка ===================== */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+// цвета команд — как цвета слотов игроков в Dota
+const TEAM_COLORS = ["#3375ff", "#66ffbf", "#bf00bf", "#f3f00b", "#ff6b00", "#fe86c2", "#a1b447"];
+
 // команды
 document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
-  <article class="team">
+  <article class="team" style="--tc:${TEAM_COLORS[i]}">
     <div class="team-top">
-      <div class="logo-wrap"><div class="logo" data-logo="logos/team-${i + 1}.png">
-        <div class="ph">${i + 1}<small>ЛОГО</small></div>
-      </div></div>
+      <div class="logo" data-logo="logos/team-${i + 1}.png"></div>
       <div>
-        <div class="team-meta">Команда #${i + 1}</div>
         <h3 class="team-name">${esc(t.name)}</h3>
       </div>
     </div>
@@ -447,7 +459,7 @@ document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
 document.querySelectorAll("[data-logo]").forEach(el => {
   const img = new Image();
   img.alt = "";
-  img.onload = () => { el.querySelector(".ph").remove(); el.appendChild(img); };
+  img.onload = () => el.appendChild(img);
   img.src = el.dataset.logo;
 });
 
