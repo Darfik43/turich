@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Турич — корпоративный турнир по Dota 2</title>
+<meta name="description" content="Корпоративный турнир по Dota 2: 7 команд, групповой этап и плей-офф double elimination.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg-2: #11151a;
+    --panel: #151a20;
+    --panel-2: #1b2129;
+    --line: #2a323c;
+    --text: #e8e2d4;
+    --muted: #8f97a1;
+    --gold: #c9a15a;
+    --gold-2: #f0d08a;
+    --radiant: #5fae4d;
+    --dire: #c23c2a;
+    --dire-2: #ff5a3c;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 Inter, system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,12,15,.82);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
+  .brand { font-family: "Cormorant SC", serif; font-weight: 700; letter-spacing: .12em; color: var(--gold-2); text-decoration: none; font-size: 18px; }
+  nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
+  nav ul a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  nav ul a:hover { color: var(--gold-2); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    padding: 110px 0 90px;
+    text-align: center;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 60% 70% at 0% 100%, rgba(95,174,77,.22), transparent 70%),
+      radial-gradient(ellipse 60% 70% at 100% 0%, rgba(194,60,42,.30), transparent 70%),
+      linear-gradient(180deg, #0d1014 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,161,90,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,161,90,.06) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+    pointer-events: none;
+  }
+  .hero .eyebrow {
+    display: inline-block; font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(201,161,90,.4); padding: 6px 14px;
+  }
+  .hero h1 {
+    font-family: "Cormorant SC", serif; font-weight: 700;
+    font-size: clamp(56px, 13vw, 140px); line-height: 1; margin: 24px 0 8px;
+    letter-spacing: .06em;
+    background: linear-gradient(180deg, #fff3cf 0%, var(--gold-2) 35%, var(--gold) 70%, #7a5a26 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 6px 30px rgba(194,60,42,.35));
+  }
+  .hero .sub { font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); margin: 0 0 32px; }
+  .hero .date {
+    font-family: "Cormorant SC", serif; font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: .08em;
+  }
+  .stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+  .stat {
+    min-width: 140px; padding: 14px 20px;
+    background: rgba(21,26,32,.75); border: 1px solid var(--line);
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  .stat b { display: block; font-family: "Cormorant SC", serif; font-size: 30px; color: var(--gold-2); line-height: 1.1; }
+  .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+
+  /* ---------- sections ---------- */
+  section { padding: 80px 0; }
+  section + section { border-top: 1px solid var(--line); }
+  .head { text-align: center; margin-bottom: 44px; }
+  .head h2 {
+    font-family: "Cormorant SC", serif; font-weight: 700; font-size: clamp(30px, 5vw, 44px);
+    margin: 0; letter-spacing: .08em; text-transform: uppercase; color: var(--text);
+  }
+  .head .rule { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; color: var(--gold); }
+  .head .rule::before, .head .rule::after { content: ""; width: 70px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .head .rule::after { transform: scaleX(-1); }
+  .head p { color: var(--muted); margin: 14px auto 0; max-width: 620px; }
+
+  /* ---------- format ---------- */
+  .format-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  .fcard { background: var(--panel); border: 1px solid var(--line); padding: 24px; position: relative; }
+  .fcard::before { content: ""; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: var(--gold); }
+  .fcard.ub::before { background: var(--radiant); }
+  .fcard.lb::before { background: var(--dire); }
+  .fcard .tag { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+  .fcard h3 { font-family: "Cormorant SC", serif; margin: 6px 0 10px; font-size: 22px; }
+  .fcard p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .bracket { background: var(--panel); border: 1px solid var(--line); padding: 24px; overflow-x: auto; }
+  .bracket h4 { margin: 0 0 14px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .bracket h4.ub { color: var(--radiant); }
+  .bracket h4.lb { color: var(--dire-2); margin-top: 28px; }
+  .brow { display: flex; align-items: center; gap: 0; min-width: 760px; }
+  .bcol { display: flex; flex-direction: column; gap: 12px; }
+  .arrow { width: 36px; height: 2px; background: var(--line); position: relative; flex: none; }
+  .arrow::after { content: ""; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left-color: var(--line); border-right: 0; }
+  .match { width: 200px; background: var(--panel-2); border: 1px solid var(--line); font-size: 14px; }
+  .match .slot { display: flex; justify-content: space-between; padding: 7px 10px; }
+  .match .slot + .slot { border-top: 1px solid var(--line); }
+  .match .slot span:last-child { color: var(--muted); }
+  .match .label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); padding: 5px 10px; background: rgba(201,161,90,.07); border-bottom: 1px solid var(--line); }
+  .match.final { border-color: var(--gold); box-shadow: 0 0 24px rgba(201,161,90,.15); }
+
+  /* ---------- teams ---------- */
+  .teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .team {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line);
+    position: relative;
+    transition: border-color .2s, transform .2s;
+  }
+  .team:hover { border-color: rgba(201,161,90,.6); transform: translateY(-2px); }
+  .team-top { display: flex; align-items: center; gap: 16px; padding: 18px; border-bottom: 1px solid var(--line); }
+  .logo {
+    width: 72px; height: 72px; flex: none; position: relative;
+    display: grid; place-items: center;
+    background: #0e1216;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  .logo::before {
+    content: ""; position: absolute; inset: 2px;
+    clip-path: inherit;
+    background: radial-gradient(circle at 50% 35%, #26303a, #12171c);
+  }
+  .logo .ph { position: relative; font-family: "Cormorant SC", serif; font-weight: 700; font-size: 26px; color: var(--gold); }
+  .logo .ph small { display: block; font-family: Inter, sans-serif; font-size: 8px; letter-spacing: .14em; color: var(--muted); text-align: center; font-weight: 600; }
+  .logo img { position: relative; width: 100%; height: 100%; object-fit: cover; }
+  .logo-wrap { padding: 2px; background: linear-gradient(135deg, var(--gold-2), #6b4f22); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .team-name { font-family: "Cormorant SC", serif; font-weight: 700; font-size: 22px; margin: 0; letter-spacing: .04em; }
+  .team-meta { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+  .roster { list-style: none; margin: 0; padding: 6px 0; }
+  .roster li { display: flex; flex-direction: column; gap: 1px; padding: 9px 18px; }
+  .roster li + li { border-top: 1px solid rgba(42,50,60,.6); }
+  .roster .name { font-weight: 600; white-space: nowrap; }
+  .roster .nick { color: var(--gold-2); font-size: 14px; overflow-wrap: anywhere; opacity: .85; }
+  .roster .nick.empty { color: var(--muted); }
+
+  /* ---------- group ---------- */
+  .group-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; align-items: start; }
+  .panel { background: var(--panel); border: 1px solid var(--line); }
+  .panel-title { padding: 14px 18px; border-bottom: 1px solid var(--line); font-size: 13px; text-transform: uppercase; letter-spacing: .14em; color: var(--gold); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+  td.t { text-align: left; font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  .zone { width: 4px; padding: 0; }
+  tr.z-ub .zone { background: var(--radiant); }
+  tr.z-lb .zone { background: var(--dire); }
+  tr.z-out .zone { background: #3a3f46; }
+  tr.z-out td { color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+
+  .cross { overflow-x: auto; }
+  .cross table { min-width: 520px; }
+  .cross td, .cross th { padding: 8px 6px; border-right: 1px solid var(--line); }
+  .cross td:last-child, .cross th:last-child { border-right: 0; }
+  .cross td.self { background: repeating-linear-gradient(45deg, #12161b, #12161b 5px, #181d23 5px, #181d23 10px); }
+  .cross td.w { color: var(--radiant); font-weight: 700; }
+  .cross td.l { color: var(--dire-2); font-weight: 700; }
+  .cross td.e { color: #3c444e; }
+
+  .rounds { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 24px; }
+  .round .panel-title { display: flex; justify-content: space-between; }
+  .round .panel-title span { color: var(--muted); letter-spacing: .06em; text-transform: none; }
+  .game { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 9px 14px; font-size: 14px; align-items: center; }
+  .game + .game { border-top: 1px solid var(--line); }
+  .game .a { text-align: right; }
+  .game .vs { font-size: 12px; color: var(--muted); font-family: "Cormorant SC", serif; min-width: 34px; text-align: center; }
+  .game .win { color: var(--gold-2); font-weight: 700; }
+
+  footer { padding: 36px 0; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+
+  @media (max-width: 900px) {
+    .format-grid { grid-template-columns: 1fr; }
+    .group-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    nav ul { gap: 14px; }
+    nav ul a { font-size: 12px; }
+    .brand { font-size: 15px; }
+    section { padding: 56px 0; }
+    .hero { padding: 72px 0 60px; }
+    .teams { grid-template-columns: 1fr; }
+    .stat { min-width: 0; flex: 1 1 40%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top">ТУРИЧ</a>
+    <ul>
+      <li><a href="#format">Формат</a></li>
+      <li><a href="#teams">Команды</a></li>
+      <li><a href="#group">Группа</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Корпоративный турнир · Dota 2</span>
+    <h1>ТУРИЧ</h1>
+    <p class="sub">Семь команд. Один круг. Две сетки. Один чемпион.</p>
+    <div class="date" id="date"></div>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>команд</span></div>
+      <div class="stat"><b>35</b><span>игроков</span></div>
+      <div class="stat"><b>29</b><span>матчей</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="format">
+  <div class="wrap">
+    <div class="head">
+      <h2>Формат</h2>
+      <div class="rule">◆</div>
+      <p>Групповой этап в один круг, затем плей-офф по системе double elimination. От места в группе зависит, с какой сетки команда начнёт плей-офф.</p>
+    </div>
+
+    <div class="format-grid">
+      <div class="fcard">
+        <div class="tag">Этап 1 · Bo1</div>
+        <h3>Группа</h3>
+        <p>Каждый с каждым, 21 матч: 7 туров по 3 игры, в каждом туре одна команда отдыхает. За победу — 1 очко.</p>
+      </div>
+      <div class="fcard ub">
+        <div class="tag">1–4 место</div>
+        <h3>Верхняя сетка</h3>
+        <p>Права на ошибку есть: после поражения команда падает в нижнюю сетку.</p>
+      </div>
+      <div class="fcard lb">
+        <div class="tag">5–6 место · 7 место — вылет</div>
+        <h3>Нижняя сетка</h3>
+        <p>Одна жизнь: любое поражение — выбывание. Финал верхней сетки и гранд-финал — Bo3.</p>
+      </div>
+    </div>
+
+    <div class="bracket">
+      <h4 class="ub">Верхняя сетка</h4>
+      <div class="brow">
+        <div class="bcol">
+          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>1 место</span><span>–</span></div><div class="slot"><span>4 место</span><span>–</span></div></div>
+          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>2 место</span><span>–</span></div><div class="slot"><span>3 место</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Финал ВС · Bo3</div><div class="slot"><span>Победитель 1–4</span><span>–</span></div><div class="slot"><span>Победитель 2–3</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match final"><div class="label">Гранд-финал · Bo3</div><div class="slot"><span>Победитель ВС</span><span>–</span></div><div class="slot"><span>Победитель НС</span><span>–</span></div></div>
+        </div>
+      </div>
+
+      <h4 class="lb">Нижняя сетка</h4>
+      <div class="brow">
+        <div class="bcol">
+          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 1–4</span><span>–</span></div><div class="slot"><span>5 место</span><span>–</span></div></div>
+          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 2–3</span><span>–</span></div><div class="slot"><span>6 место</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Полуфинал НС · Bo1</div><div class="slot"><span>Победитель</span><span>–</span></div><div class="slot"><span>Победитель</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Финал НС · Bo1</div><div class="slot"><span>Победитель ПФ НС</span><span>–</span></div><div class="slot"><span>Проигр. финала ВС</span><span>–</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teams">
+  <div class="wrap">
+    <div class="head">
+      <h2>Команды</h2>
+      <div class="rule">◆</div>
+      <p>Составы сбалансированы по ролям и рейтингу.</p>
+    </div>
+    <div class="teams" id="teams-list"></div>
+  </div>
+</section>
+
+<section id="group">
+  <div class="wrap">
+    <div class="head">
+      <h2>Групповой этап</h2>
+      <div class="rule">◆</div>
+      <p>Таблица обновится, как только появятся результаты.</p>
+    </div>
+
+    <div class="group-grid">
+      <div class="panel">
+        <div class="panel-title">Таблица</div>
+        <table>
+          <thead><tr><th class="zone"></th><th>#</th><th style="text-align:left">Команда</th><th>И</th><th>В</th><th>П</th><th>Очки</th></tr></thead>
+          <tbody id="standings"></tbody>
+        </table>
+        <div class="legend">
+          <span><i style="background:var(--radiant)"></i>Верхняя сетка</span>
+          <span><i style="background:var(--dire)"></i>Нижняя сетка</span>
+          <span><i style="background:#3a3f46"></i>Вылет</span>
+        </div>
+      </div>
+
+      <div class="panel cross">
+        <div class="panel-title">Шахматка</div>
+        <table id="crosstable"></table>
+      </div>
+    </div>
+
+    <div class="rounds" id="rounds"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Турич · корпоративный турнир по Dota 2</div>
+</footer>
+
+<script>
+/* =====================================================================
+   ДАННЫЕ ТУРНИРА — правь здесь.
+   Лого команды: положи картинку в logos/team-1.png ... logos/team-7.png
+   (квадратная, от 256×256). Пока файла нет, показывается заглушка.
+   ===================================================================== */
+const TOURNAMENT = {
+  date: "Даты будут объявлены",
+};
+
+const TEAMS = [
+  { name: "Команда 1", players: [
+    ["Егор Родионов", "путеводитель по губам"],
+    ["Дмитрий Сокол", "Tttttttttttttttttttttttttttttttttt"],
+    ["Максим Вербицкий", "tony_crosss"],
+    ["Игорь Зимин", "Failer The Great"],
+    ["Владислав Липунов", "vedeep"],
+  ]},
+  { name: "Команда 2", players: [
+    ["Александр Филипченко", "SWAGΛMINΛTOR"],
+    ["Виталик Пузанов", "V17"],
+    ["Константин Филитович", "Wouk"],
+    ["Андрей Пойманов", "Играю Голым"],
+    ["Михаил Сабашный", "Darkanus"],
+  ]},
+  { name: "Команда 3", players: [
+    ["Григорий Власов", "Ditya Ra"],
+    ["Илья Булва", "TheEnd"],
+    ["Эдуард Гребнёв", "Филейный Кусь"],
+    ["Виктор Штельмашенко", "Шаманчик связывай"],
+    ["Никита Пестрецов", "воронежский рыгуль"],
+  ]},
+  { name: "Команда 4", players: [
+    ["Даниил Дроздов", "Darfik"],
+    ["Максим Шершнёв", "YOUtopia"],
+    ["Алексей Беляев", "Evisot"],
+    ["Вероника Жукова", "Кирилл"],
+    ["Даниил Воронцов", "⊹₊фNд3р_оТ_б0г@₊⊹"],
+  ]},
+  { name: "Команда 5", players: [
+    ["Валерий Ночвин", "NightWin"],
+    ["Иван Кравцов", "GUSTAVO"],
+    ["Янг Макан", "YungMacan2016"],
+    ["Илья Назарук", ""],
+    ["Егор Миллер", "detached"],
+  ]},
+  { name: "Команда 6", players: [
+    ["Сергей Троянский", "Самость"],
+    ["Захар Пашенцев", "shojurue"],
+    ["Андрей Арапов", "undead"],
+    ["Даниил Зеленин", "Phoenix"],
+    ["Антон Набокин", "Solayter"],
+  ]},
+  { name: "Команда 7", players: [
+    ["Алексей Шеменков", "AlphaNipple"],
+    ["Егор Руф", "IIoXuTuTeJLb_geTuWek1971"],
+    ["Алексей Уваров", "LEXA"],
+    ["Антон Хабибуллин", "Vozduh Khan"],
+    ["Лёха Целых", "lx4"],
+  ]},
+];
+
+/* Результаты группы. Номер тура -> список победителей по матчам тура
+   в порядке, как матчи показаны на странице: 1 — победила левая команда,
+   2 — правая, null — ещё не сыграно.
+   Пример: RESULTS[1] = [1, 2, null]; */
+const RESULTS = {};
+
+/* ===================== дальше — отрисовка ===================== */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+document.getElementById("date").textContent = TOURNAMENT.date;
+
+// команды
+document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
+  <article class="team">
+    <div class="team-top">
+      <div class="logo-wrap"><div class="logo" data-logo="logos/team-${i + 1}.png">
+        <div class="ph">${i + 1}<small>ЛОГО</small></div>
+      </div></div>
+      <div>
+        <div class="team-meta">Команда #${i + 1}</div>
+        <h3 class="team-name">${esc(t.name)}</h3>
+      </div>
+    </div>
+    <ul class="roster">
+      ${t.players.map(([n, k]) => `<li><span class="name">${esc(n)}</span><span class="nick ${k ? "" : "empty"}">${k ? esc(k) : "—"}</span></li>`).join("")}
+    </ul>
+  </article>`).join("");
+
+// лого: подставляем, если файл существует
+document.querySelectorAll("[data-logo]").forEach(el => {
+  const img = new Image();
+  img.alt = "";
+  img.onload = () => { el.querySelector(".ph").remove(); el.appendChild(img); };
+  img.src = el.dataset.logo;
+});
+
+// расписание группы (круговой метод: 7 команд + «отдых»)
+function roundRobin(n) {
+  const ids = [...Array(n).keys()];
+  if (n % 2) ids.push(null);
+  const m = ids.length, rounds = [];
+  for (let r = 0; r < m - 1; r++) {
+    const games = []; let rest = null;
+    for (let i = 0; i < m / 2; i++) {
+      const a = ids[i], b = ids[m - 1 - i];
+      if (a === null || b === null) rest = a === null ? b : a;
+      else games.push(r % 2 ? [b, a] : [a, b]);
+    }
+    rounds.push({ games, rest });
+    ids.splice(1, 0, ids.pop());
+  }
+  return rounds;
+}
+const ROUNDS = roundRobin(TEAMS.length);
+
+// подсчёт
+const stat = TEAMS.map((t, i) => ({ i, name: t.name, p: 0, w: 0, l: 0 }));
+const h2h = {};
+ROUNDS.forEach((r, ri) => r.games.forEach(([a, b], gi) => {
+  const res = (RESULTS[ri + 1] || [])[gi];
+  if (res !== 1 && res !== 2) return;
+  const [win, lose] = res === 1 ? [a, b] : [b, a];
+  stat[win].p++; stat[win].w++; stat[lose].p++; stat[lose].l++;
+  h2h[win + "-" + lose] = "w"; h2h[lose + "-" + win] = "l";
+}));
+const order = [...stat].sort((x, y) =>
+  y.w - x.w || (h2h[x.i + "-" + y.i] === "w" ? -1 : h2h[y.i + "-" + x.i] === "w" ? 1 : 0) || x.i - y.i);
+const played = stat.some(s => s.p > 0);
+
+document.getElementById("standings").innerHTML = order.map((s, pos) => {
+  const zone = pos < 4 ? "z-ub" : pos < 6 ? "z-lb" : "z-out";
+  return `<tr class="${zone}"><td class="zone"></td><td>${played ? pos + 1 : "–"}</td><td class="t">${esc(s.name)}</td>
+    <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td><b>${s.w}</b></td></tr>`;
+}).join("");
+
+// шахматка
+const short = i => "К" + (i + 1);
+document.getElementById("crosstable").innerHTML =
+  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th>${short(i)}</th>`).join("")}</tr></thead><tbody>` +
+  TEAMS.map((t, i) => `<tr><td class="t">${esc(t.name)}</td>${TEAMS.map((_, j) => {
+    if (i === j) return `<td class="self"></td>`;
+    const r = h2h[i + "-" + j];
+    return r === "w" ? `<td class="w">W</td>` : r === "l" ? `<td class="l">L</td>` : `<td class="e">·</td>`;
+  }).join("")}</tr>`).join("") + `</tbody>`;
+
+// туры
+document.getElementById("rounds").innerHTML = ROUNDS.map((r, ri) => `
+  <div class="panel round">
+    <div class="panel-title">Тур ${ri + 1}<span>отдыхает: ${esc(TEAMS[r.rest].name)}</span></div>
+    ${r.games.map(([a, b], gi) => {
+      const res = (RESULTS[ri + 1] || [])[gi];
+      return `<div class="game"><span class="a ${res === 1 ? "win" : ""}">${esc(TEAMS[a].name)}</span>
+        <span class="vs">${res === 1 ? "1 : 0" : res === 2 ? "0 : 1" : "vs"}</span>
+        <span class="b ${res === 2 ? "win" : ""}">${esc(TEAMS[b].name)}</span></div>`;
+    }).join("")}
+  </div>`).join("");
+</script>
+</body>
+</html>
