@@ -45,7 +45,7 @@
   nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
   .brand { font-family: "Cormorant SC", serif; font-weight: 700; letter-spacing: .12em; color: var(--gold-2); text-decoration: none; font-size: 18px; }
   nav ul { display: flex; gap: 22px; list-style: none; margin: 0; padding: 0; }
-  nav ul a { text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  nav ul a { text-decoration: none; white-space: nowrap; color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
   nav ul a:hover { color: var(--gold-2); }
 
   /* ---------- hero ---------- */
@@ -81,18 +81,14 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 6px 30px rgba(194,60,42,.35));
   }
-  .hero .sub { font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); margin: 0 0 32px; }
-  .hero .date {
-    font-family: "Cormorant SC", serif; font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: .08em;
-  }
-  .stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
-  .stat {
-    min-width: 140px; padding: 14px 20px;
+  .dates { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+  .dt {
+    min-width: 220px; padding: 14px 26px; text-align: center;
     background: rgba(21,26,32,.75); border: 1px solid var(--line);
-    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
   }
-  .stat b { display: block; font-family: "Cormorant SC", serif; font-size: 30px; color: var(--gold-2); line-height: 1.1; }
-  .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+  .dt span { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; }
+  .dt b { display: block; font-family: "Cormorant SC", serif; font-size: 28px; color: var(--gold-2); line-height: 1.2; }
 
   /* ---------- sections ---------- */
   section { padding: 80px 0; }
@@ -107,16 +103,7 @@
   .head .rule::after { transform: scaleX(-1); }
   .head p { color: var(--muted); margin: 14px auto 0; max-width: 620px; }
 
-  /* ---------- format ---------- */
-  .format-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
-  .fcard { background: var(--panel); border: 1px solid var(--line); padding: 24px; position: relative; }
-  .fcard::before { content: ""; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: var(--gold); }
-  .fcard.ub::before { background: var(--radiant); }
-  .fcard.lb::before { background: var(--dire); }
-  .fcard .tag { font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
-  .fcard h3 { font-family: "Cormorant SC", serif; margin: 6px 0 10px; font-size: 22px; }
-  .fcard p { margin: 0; color: var(--muted); font-size: 15px; }
-
+  /* ---------- playoff ---------- */
   .bracket { background: var(--panel); border: 1px solid var(--line); padding: 24px; overflow-x: auto; }
   .bracket h4 { margin: 0 0 14px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
   .bracket h4.ub { color: var(--radiant); }
@@ -201,20 +188,35 @@
   .game .vs { font-size: 12px; color: var(--muted); font-family: "Cormorant SC", serif; min-width: 34px; text-align: center; }
   .game .win { color: var(--gold-2); font-weight: 700; }
 
+  /* ---------- streams ---------- */
+  .streams { display: flex; justify-content: center; }
+  .streamer {
+    display: flex; align-items: center; gap: 18px; width: 100%; max-width: 520px;
+    padding: 20px 24px; text-decoration: none;
+    background: linear-gradient(135deg, rgba(145,70,255,.16), var(--panel) 60%);
+    border: 1px solid rgba(145,70,255,.45);
+    transition: border-color .2s, transform .2s;
+  }
+  .streamer:hover { border-color: #a970ff; transform: translateY(-2px); }
+  .streamer .tw { width: 56px; height: 56px; flex: none; display: grid; place-items: center; background: #9146ff; color: #fff; }
+  .streamer .sinfo { flex: 1; min-width: 0; }
+  .streamer .sinfo b { display: block; font-size: 22px; font-family: "Cormorant SC", serif; color: var(--text); }
+  .streamer .sinfo small { color: var(--muted); font-size: 14px; }
+  .streamer .go { color: #bf94ff; font-weight: 600; font-size: 14px; white-space: nowrap; }
+
   footer { padding: 36px 0; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
 
   @media (max-width: 900px) {
-    .format-grid { grid-template-columns: 1fr; }
     .group-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
-    nav ul { gap: 14px; }
-    nav ul a { font-size: 12px; }
+    nav ul { gap: 10px; }
+    nav ul a { font-size: 11px; letter-spacing: .03em; }
     .brand { font-size: 15px; }
     section { padding: 56px 0; }
     .hero { padding: 72px 0 60px; }
     .teams { grid-template-columns: 1fr; }
-    .stat { min-width: 0; flex: 1 1 40%; }
+    .dt { min-width: 0; flex: 1 1 100%; }
   }
 </style>
 </head>
@@ -224,9 +226,10 @@
   <div class="wrap">
     <a class="brand" href="#top">ТУРИЧ</a>
     <ul>
-      <li><a href="#format">Формат</a></li>
       <li><a href="#teams">Команды</a></li>
       <li><a href="#group">Группа</a></li>
+      <li><a href="#playoff">Плей-офф</a></li>
+      <li><a href="#streams">Стримы</a></li>
     </ul>
   </div>
 </nav>
@@ -235,77 +238,12 @@
   <div class="wrap">
     <span class="eyebrow">Корпоративный турнир · Dota 2</span>
     <h1>ТУРИЧ</h1>
-    <p class="sub">Семь команд. Один круг. Две сетки. Один чемпион.</p>
-    <div class="date" id="date"></div>
-    <div class="stats">
-      <div class="stat"><b>7</b><span>команд</span></div>
-      <div class="stat"><b>35</b><span>игроков</span></div>
-      <div class="stat"><b>29</b><span>матчей</span></div>
+    <div class="dates">
+      <div class="dt"><span>Групповой этап</span><b>16–30 ноября</b></div>
+      <div class="dt"><span>Плей-офф</span><b>1–13 декабря</b></div>
     </div>
   </div>
 </header>
-
-<section id="format">
-  <div class="wrap">
-    <div class="head">
-      <h2>Формат</h2>
-      <div class="rule">◆</div>
-      <p>Групповой этап в один круг, затем плей-офф по системе double elimination. От места в группе зависит, с какой сетки команда начнёт плей-офф.</p>
-    </div>
-
-    <div class="format-grid">
-      <div class="fcard">
-        <div class="tag">Этап 1 · Bo1</div>
-        <h3>Группа</h3>
-        <p>Каждый с каждым, 21 матч: 7 туров по 3 игры, в каждом туре одна команда отдыхает. За победу — 1 очко.</p>
-      </div>
-      <div class="fcard ub">
-        <div class="tag">1–4 место</div>
-        <h3>Верхняя сетка</h3>
-        <p>Права на ошибку есть: после поражения команда падает в нижнюю сетку.</p>
-      </div>
-      <div class="fcard lb">
-        <div class="tag">5–6 место · 7 место — вылет</div>
-        <h3>Нижняя сетка</h3>
-        <p>Одна жизнь: любое поражение — выбывание. Финал верхней сетки и гранд-финал — Bo3.</p>
-      </div>
-    </div>
-
-    <div class="bracket">
-      <h4 class="ub">Верхняя сетка</h4>
-      <div class="brow">
-        <div class="bcol">
-          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>1 место</span><span>–</span></div><div class="slot"><span>4 место</span><span>–</span></div></div>
-          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>2 место</span><span>–</span></div><div class="slot"><span>3 место</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Финал ВС · Bo3</div><div class="slot"><span>Победитель 1–4</span><span>–</span></div><div class="slot"><span>Победитель 2–3</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match final"><div class="label">Гранд-финал · Bo3</div><div class="slot"><span>Победитель ВС</span><span>–</span></div><div class="slot"><span>Победитель НС</span><span>–</span></div></div>
-        </div>
-      </div>
-
-      <h4 class="lb">Нижняя сетка</h4>
-      <div class="brow">
-        <div class="bcol">
-          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 1–4</span><span>–</span></div><div class="slot"><span>5 место</span><span>–</span></div></div>
-          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 2–3</span><span>–</span></div><div class="slot"><span>6 место</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Полуфинал НС · Bo1</div><div class="slot"><span>Победитель</span><span>–</span></div><div class="slot"><span>Победитель</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Финал НС · Bo1</div><div class="slot"><span>Победитель ПФ НС</span><span>–</span></div><div class="slot"><span>Проигр. финала ВС</span><span>–</span></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section id="teams">
   <div class="wrap">
@@ -350,6 +288,67 @@
   </div>
 </section>
 
+<section id="playoff">
+  <div class="wrap">
+    <div class="head">
+      <h2>Плей-офф</h2>
+      <div class="rule">◆</div>
+      <p>Double elimination. 1–4 места группы стартуют в верхней сетке, 5–6 — в нижней, 7 место выбывает.</p>
+    </div>
+
+    <div class="bracket">
+      <h4 class="ub">Верхняя сетка</h4>
+      <div class="brow">
+        <div class="bcol">
+          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>1 место</span><span>–</span></div><div class="slot"><span>4 место</span><span>–</span></div></div>
+          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>2 место</span><span>–</span></div><div class="slot"><span>3 место</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Финал ВС · Bo3</div><div class="slot"><span>Победитель 1–4</span><span>–</span></div><div class="slot"><span>Победитель 2–3</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match final"><div class="label">Гранд-финал · Bo3</div><div class="slot"><span>Победитель ВС</span><span>–</span></div><div class="slot"><span>Победитель НС</span><span>–</span></div></div>
+        </div>
+      </div>
+
+      <h4 class="lb">Нижняя сетка</h4>
+      <div class="brow">
+        <div class="bcol">
+          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 1–4</span><span>–</span></div><div class="slot"><span>5 место</span><span>–</span></div></div>
+          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 2–3</span><span>–</span></div><div class="slot"><span>6 место</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Полуфинал НС · Bo1</div><div class="slot"><span>Победитель</span><span>–</span></div><div class="slot"><span>Победитель</span><span>–</span></div></div>
+        </div>
+        <div class="arrow"></div>
+        <div class="bcol">
+          <div class="match"><div class="label">Финал НС · Bo1</div><div class="slot"><span>Победитель ПФ НС</span><span>–</span></div><div class="slot"><span>Проигр. финала ВС</span><span>–</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="streams">
+  <div class="wrap">
+    <div class="head">
+      <h2>Стримеры</h2>
+      <div class="rule">◆</div>
+      <p>Матчи турнира в прямом эфире.</p>
+    </div>
+    <div class="streams">
+      <a class="streamer" href="https://www.twitch.tv/darfik" target="_blank" rel="noopener">
+        <span class="tw" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M4.3 2 3 5.4v13.7h4.7V22h2.6l2.6-2.9h3.9L22 13.9V2H4.3Zm15.9 11-3.1 3.1h-5.2l-2.6 2.6v-2.6H5.1V3.8h15.1V13Zm-3.4-6.3v5.4H15V6.7h1.8Zm-4.9 0v5.4H10V6.7h1.9Z"/></svg></span>
+        <span class="sinfo"><b>darfik</b><small>twitch.tv/darfik</small></span>
+        <span class="go">Смотреть →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">Турич · корпоративный турнир по Dota 2</div>
 </footer>
@@ -360,10 +359,6 @@
    Лого команды: положи картинку в logos/team-1.png ... logos/team-7.png
    (квадратная, от 256×256). Пока файла нет, показывается заглушка.
    ===================================================================== */
-const TOURNAMENT = {
-  date: "Даты будут объявлены",
-};
-
 const TEAMS = [
   { name: "Команда 1", players: [
     ["Егор Родионов", "путеводитель по губам"],
@@ -424,8 +419,6 @@ const RESULTS = {};
 
 /* ===================== дальше — отрисовка ===================== */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-document.getElementById("date").textContent = TOURNAMENT.date;
 
 // команды
 document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
