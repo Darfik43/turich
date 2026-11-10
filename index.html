@@ -7,7 +7,7 @@
 <meta name="description" content="Корпоративный турнир по Dota 2: 7 команд, групповой этап и плей-офф double elimination.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@500;600;700;800&family=Cinzel:wght@900&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0d0e10;
@@ -26,7 +26,7 @@
     --dire-2: #ef5a42;
     --gold: #c79c4a;
     --gold-2: #e8c06f;
-    --head: "Oswald", "Arial Narrow", sans-serif;
+    --head: "Fira Sans Extra Condensed", "Arial Narrow", sans-serif;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -64,8 +64,8 @@
   .hero .wrap { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 40px; padding-top: 72px; padding-bottom: 72px; }
   .kicker { font-family: var(--head); text-transform: uppercase; letter-spacing: .12em; font-size: 15px; color: var(--red-2); }
   .hero h1 {
-    font-family: var(--head); font-weight: 700; text-transform: uppercase;
-    font-size: clamp(72px, 14vw, 168px); line-height: .9; margin: 12px 0 28px; letter-spacing: .01em;
+    font-family: var(--head); font-weight: 800; text-transform: uppercase;
+    font-size: clamp(76px, 15vw, 176px); line-height: .9; margin: 12px 0 28px; letter-spacing: .01em;
     color: var(--text);
     text-shadow: 0 2px 0 #000, 0 0 40px rgba(200,57,43,.25);
   }
@@ -75,8 +75,8 @@
   .dt b { font-family: var(--head); font-weight: 500; font-size: 24px; letter-spacing: .02em; }
   .dt.g b { color: var(--radiant); }
   .dt.p b { color: var(--red-2); }
-  .minimap { width: 100%; max-width: 420px; justify-self: end; aspect-ratio: 1; border: 1px solid var(--line-2); background: #121411; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
-  .minimap svg { display: block; width: 100%; height: 100%; }
+  .emblem { width: 100%; max-width: 300px; justify-self: center; filter: drop-shadow(0 18px 40px rgba(0,0,0,.6)) drop-shadow(0 0 50px rgba(200,57,43,.18)); }
+  .emblem svg { display: block; width: 100%; height: auto; }
 
   /* ---------- sections ---------- */
   section { padding: 72px 0; }
@@ -207,7 +207,7 @@
   @media (max-width: 900px) {
     .group-grid { grid-template-columns: 1fr; }
     .hero .wrap { grid-template-columns: 1fr; }
-    .minimap { display: none; }
+    .emblem { max-width: 140px; justify-self: start; order: -1; }
   }
   @media (max-width: 640px) {
     nav ul { gap: 12px; }
@@ -244,43 +244,51 @@
         <div class="dt p"><span>Плей-офф</span><b>1–13 декабря</b></div>
       </div>
     </div>
-    <div class="minimap" aria-hidden="true">
-      <svg viewBox="0 0 200 200">
+    <div class="emblem" aria-label="SG">
+      <svg viewBox="0 0 240 260" role="img">
         <defs>
-          <pattern id="trees" width="9" height="9" patternUnits="userSpaceOnUse">
-            <circle cx="2.5" cy="2.5" r="2.3" fill="#1f2a17"/>
-            <circle cx="7" cy="6.8" r="2" fill="#1b2414"/>
-          </pattern>
+          <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#d9d4c7"/>
+            <stop offset=".35" stop-color="#7d7a73"/>
+            <stop offset=".6" stop-color="#3a3936"/>
+            <stop offset="1" stop-color="#9a958a"/>
+          </linearGradient>
+          <radialGradient id="field" cx=".38" cy=".3" r=".85">
+            <stop offset="0" stop-color="#d4442f"/>
+            <stop offset=".55" stop-color="#8e1f14"/>
+            <stop offset="1" stop-color="#3d0a06"/>
+          </radialGradient>
+          <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".45" stop-color="#e2ddd2"/>
+            <stop offset=".5" stop-color="#9c978c"/>
+            <stop offset="1" stop-color="#d8d2c5"/>
+          </linearGradient>
+          <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".22"/>
+            <stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="drop" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity=".8"/>
+          </filter>
         </defs>
-        <rect width="200" height="200" fill="#151a12"/>
-        <rect width="200" height="200" fill="url(#trees)"/>
-        <!-- река -->
-        <path d="M-5 30 C 40 45, 70 80, 100 100 S 160 155, 205 170" stroke="#1c3442" stroke-width="16" fill="none"/>
-        <path d="M-5 30 C 40 45, 70 80, 100 100 S 160 155, 205 170" stroke="#24455a" stroke-width="6" fill="none" opacity=".6"/>
-        <!-- линии -->
-        <g stroke="#3a3626" stroke-width="7" fill="none" stroke-linecap="square">
-          <path d="M22 165 V22 H178"/>
-          <path d="M35 178 H178 V35"/>
-          <path d="M38 162 L162 38"/>
+        <!-- щит: внешний обод -->
+        <path d="M120 6 L222 40 L222 150 C222 196 176 230 120 254 C64 230 18 196 18 150 L18 40 Z" fill="url(#rim)"/>
+        <path d="M120 6 L222 40 L222 150 C222 196 176 230 120 254 C64 230 18 196 18 150 L18 40 Z" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="2"/>
+        <!-- поле -->
+        <path d="M120 20 L208 50 L208 148 C208 187 168 216 120 238 C72 216 32 187 32 148 L32 50 Z" fill="#160504"/>
+        <path d="M120 26 L202 54 L202 147 C202 183 165 210 120 231 C75 210 38 183 38 147 L38 54 Z" fill="url(#field)"/>
+        <!-- диагональный разлом -->
+        <path d="M38 196 L202 70 L202 84 L48 206 Z" fill="#000" opacity=".28"/>
+        <path d="M120 26 L202 54 L202 70 L38 196 L38 54 Z" fill="url(#shine)"/>
+        <!-- буквы -->
+        <text x="120" y="160" text-anchor="middle" font-family="Cinzel, 'Times New Roman', serif" font-weight="900" font-size="104" letter-spacing="-4"
+              fill="url(#steel)" stroke="#1a0503" stroke-width="3" paint-order="stroke" filter="url(#drop)">SG</text>
+        <!-- заклёпки -->
+        <g fill="#c9c3b6" stroke="#2a2826" stroke-width="1">
+          <circle cx="120" cy="14" r="3.2"/><circle cx="214" cy="46" r="3.2"/><circle cx="26" cy="46" r="3.2"/>
+          <circle cx="120" cy="246" r="3.2"/>
         </g>
-        <!-- базы -->
-        <rect x="6" y="150" width="44" height="44" fill="#1d2e17" stroke="#6fae3f" stroke-opacity=".5"/>
-        <rect x="150" y="6" width="44" height="44" fill="#2e1714" stroke="#c8392b" stroke-opacity=".6"/>
-        <circle cx="26" cy="174" r="7" fill="#6fae3f"/>
-        <circle cx="174" cy="26" r="7" fill="#c8392b"/>
-        <!-- башни -->
-        <g fill="#6fae3f">
-          <rect x="19" y="125" width="6" height="6"/><rect x="19" y="90" width="6" height="6"/><rect x="19" y="58" width="6" height="6"/>
-          <rect x="57" y="140" width="6" height="6"/><rect x="77" y="120" width="6" height="6"/><rect x="92" y="105" width="6" height="6"/>
-          <rect x="70" y="175" width="6" height="6"/><rect x="108" y="175" width="6" height="6"/><rect x="146" y="175" width="6" height="6"/>
-        </g>
-        <g fill="#c8392b">
-          <rect x="52" y="19" width="6" height="6"/><rect x="92" y="19" width="6" height="6"/><rect x="128" y="19" width="6" height="6"/>
-          <rect x="104" y="89" width="6" height="6"/><rect x="118" y="74" width="6" height="6"/><rect x="137" y="55" width="6" height="6"/>
-          <rect x="175" y="142" width="6" height="6"/><rect x="175" y="108" width="6" height="6"/><rect x="175" y="70" width="6" height="6"/>
-        </g>
-        <!-- рошан -->
-        <circle cx="128" cy="124" r="4" fill="none" stroke="#e8c06f" stroke-width="1.5"/>
       </svg>
     </div>
   </div>
