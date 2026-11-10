@@ -75,7 +75,7 @@
   .dt b { font-family: var(--head); font-weight: 500; font-size: 24px; letter-spacing: .02em; }
   .dt.g b { color: var(--radiant); }
   .dt.p b { color: var(--red-2); }
-  .emblem { width: 100%; max-width: 400px; justify-self: end; filter: drop-shadow(0 10px 30px rgba(0,0,0,.6)); }
+  .emblem { width: 100%; max-width: 340px; justify-self: end; filter: drop-shadow(0 10px 30px rgba(0,0,0,.6)); }
   .emblem svg { display: block; width: 100%; height: auto; }
 
   /* ---------- sections ---------- */
@@ -207,7 +207,7 @@
   @media (max-width: 900px) {
     .group-grid { grid-template-columns: 1fr; }
     .hero .wrap { grid-template-columns: 1fr; }
-    .emblem { max-width: 220px; justify-self: start; order: -1; margin-left: -8px; }
+    .emblem { max-width: 170px; justify-self: start; order: -1; margin-left: -8px; }
   }
   @media (max-width: 640px) {
     nav ul { gap: 10px; }
@@ -245,7 +245,7 @@
       </div>
     </div>
     <div class="emblem" aria-label="SG">
-      <svg viewBox="0 0 340 250" role="img">
+      <svg viewBox="40 48 216 112" role="img">
         <defs>
           <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#f8e3a3"/>
@@ -267,19 +267,10 @@
             <feComposite in="b" in2="SourceGraphic" operator="in"/>
           </filter>
         </defs>
-        <!-- линии построения -->
-        <g stroke="#c9a15a" stroke-width=".6" opacity=".4" fill="none">
-          <path d="M14 52 H326 M14 104 H326 M14 156 H326"/>
-          <path d="M34 10 L170 246 M74 10 L210 246"/>
-          <path d="M306 10 L170 246 M266 10 L130 246"/>
-        </g>
-        <g font-family="Georgia, serif" font-size="9" fill="#c9a15a" opacity=".6">
-          <text x="14" y="44">X</text><text x="14" y="96">Y</text><text x="14" y="148">X</text>
-        </g>
         <!-- монограмма SG -->
-        <g fill="none" stroke="url(#gold)" stroke-width="22" stroke-linejoin="miter" stroke-miterlimit="10" filter="url(#foil)">
-          <path d="M152 52 H54 L84 104 H122 L152 156 H54"/>
-          <path d="M292 52 H214 L184 104 L214 156 H282 L292 138 V104 H240"/>
+        <g fill="none" stroke="url(#gold)" stroke-width="20" filter="url(#foil)">
+          <path d="M128 66 H90 A19 19 0 0 0 90 104 H100 A19 19 0 0 1 100 142 H58"/>
+          <path d="M238 66 H188 A38 38 0 0 0 188 142 H238 V104 H202"/>
         </g>
       </svg>
     </div>
