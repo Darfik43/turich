@@ -193,14 +193,25 @@
   .cross td.l { color: var(--dire-2); font-weight: 700; }
   .cross td.e { color: #3c444e; }
 
-  .rounds { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-top: 24px; }
-  .round .panel-title { display: flex; justify-content: space-between; }
-  .round .panel-title span { color: var(--muted); letter-spacing: .06em; text-transform: none; }
-  .game { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; padding: 9px 14px; font-size: 14px; align-items: center; }
-  .game + .game { border-top: 1px solid var(--line); }
-  .game .a { text-align: right; }
-  .game .vs { font-size: 12px; color: var(--muted); font-family: "Cormorant SC", serif; min-width: 34px; text-align: center; }
-  .game .win { color: var(--gold-2); font-weight: 700; }
+  .panel-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .panel-title span { color: var(--muted); letter-spacing: .04em; text-transform: none; font-size: 12px; }
+  .cross { margin-top: 24px; }
+  .cross td.sch { color: var(--gold); font-size: 12px; }
+  .mgroup { padding: 10px 18px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  .mrow { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; padding: 10px 18px; border-top: 1px solid var(--line); }
+  .mgroup + .mrow { border-top: 0; }
+  .mwhen { font-size: 13px; line-height: 1.25; color: var(--muted); }
+  .mwhen b { display: block; color: var(--text); font-size: 15px; }
+  .mrow.up .mwhen b { color: var(--gold-2); }
+  .mteams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; font-size: 15px; min-width: 0; }
+  .mteams .a { text-align: right; }
+  .mteams span { overflow-wrap: anywhere; }
+  .mteams .vs { font-family: "Cormorant SC", serif; color: var(--muted); font-size: 14px; }
+  .mteams .w { color: var(--gold-2); font-weight: 700; }
+  .mteams .l { color: var(--muted); }
+  .mempty { padding: 18px; color: var(--muted); font-size: 14px; }
+  .pending { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 18px 16px; }
+  .pending span { font-size: 12px; padding: 3px 8px; border: 1px dashed var(--line); color: var(--muted); }
 
   /* ---------- streams ---------- */
   .streams { display: flex; justify-content: center; }
@@ -275,14 +286,14 @@
     <div class="head">
       <h2>Групповой этап</h2>
       <div class="rule">◆</div>
-      <p>Таблица обновится, как только появятся результаты.</p>
+      <p>Каждая команда играет с каждой по одному разу (Bo1). Время матчей команды назначают сами, до 30 ноября включительно.</p>
     </div>
 
     <div class="group-grid">
       <div class="panel">
         <div class="panel-title">Таблица</div>
         <table>
-          <thead><tr><th class="zone"></th><th>#</th><th style="text-align:left">Команда</th><th>И</th><th>В</th><th>П</th><th>Очки</th></tr></thead>
+          <thead><tr><th class="zone"></th><th>#</th><th style="text-align:left">Команда</th><th>И</th><th>В</th><th>П</th><th title="Осталось сыграть">Ост.</th><th>Очки</th></tr></thead>
           <tbody id="standings"></tbody>
         </table>
         <div class="legend">
@@ -292,13 +303,16 @@
         </div>
       </div>
 
-      <div class="panel cross">
-        <div class="panel-title">Шахматка</div>
-        <table id="crosstable"></table>
+      <div class="panel matches">
+        <div class="panel-title">Матчи<span id="m-count"></span></div>
+        <div id="matches"></div>
       </div>
     </div>
 
-    <div class="rounds" id="rounds"></div>
+    <div class="panel cross">
+      <div class="panel-title">Все пары<span>W — победа, L — поражение, дата — матч назначен</span></div>
+      <table id="crosstable"></table>
+    </div>
   </div>
 </section>
 
@@ -400,11 +414,14 @@ const TEAMS = [
   ]},
 ];
 
-/* Результаты группы. Номер тура -> список победителей по матчам тура
-   в порядке, как матчи показаны на странице: 1 — победила левая команда,
-   2 — правая, null — ещё не сыграно.
-   Пример: RESULTS[1] = [1, 2, null]; */
-const RESULTS = {};
+/* Матчи группы. Порядок не важен, туров нет.
+   Команды договорились о времени — добавь строку (номера команд 1–7):
+     { a: 1, b: 4, time: "2026-11-18 20:00" },
+   Матч сыгран — допиши номер победителя:
+     { a: 1, b: 4, time: "2026-11-18 20:00", win: 4 },
+   Таблица, список матчей и пары пересчитываются сами. */
+const MATCHES = [
+];
 
 /* ===================== дальше — отрисовка ===================== */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -434,66 +451,80 @@ document.querySelectorAll("[data-logo]").forEach(el => {
   img.src = el.dataset.logo;
 });
 
-// расписание группы (круговой метод: 7 команд + «отдых»)
-function roundRobin(n) {
-  const ids = [...Array(n).keys()];
-  if (n % 2) ids.push(null);
-  const m = ids.length, rounds = [];
-  for (let r = 0; r < m - 1; r++) {
-    const games = []; let rest = null;
-    for (let i = 0; i < m / 2; i++) {
-      const a = ids[i], b = ids[m - 1 - i];
-      if (a === null || b === null) rest = a === null ? b : a;
-      else games.push(r % 2 ? [b, a] : [a, b]);
-    }
-    rounds.push({ games, rest });
-    ids.splice(1, 0, ids.pop());
-  }
-  return rounds;
-}
-const ROUNDS = roundRobin(TEAMS.length);
+// ---------------- группа ----------------
+const N = TEAMS.length, GAMES_EACH = N - 1;
+const tname = i => TEAMS[i].name;
+const pairKey = (i, j) => Math.min(i, j) + "-" + Math.max(i, j);
+const parseTime = s => { const d = new Date(String(s).replace(" ", "T")); return isNaN(d) ? null : d; };
+
+// приводим к индексам 0..N-1, отбрасываем ошибки и дубли пар
+const games = [], seenPairs = new Set();
+MATCHES.forEach((m, k) => {
+  const a = m.a - 1, b = m.b - 1;
+  if (!(a >= 0 && a < N && b >= 0 && b < N && a !== b)) return console.warn("MATCHES[" + k + "]: неверные номера команд", m);
+  const key = pairKey(a, b);
+  if (seenPairs.has(key)) return console.warn("MATCHES[" + k + "]: эта пара уже есть", m);
+  seenPairs.add(key);
+  const win = m.win === m.a ? a : m.win === m.b ? b : null;
+  games.push({ a, b, key, time: m.time ? parseTime(m.time) : null, win });
+});
 
 // подсчёт
-const stat = TEAMS.map((t, i) => ({ i, name: t.name, p: 0, w: 0, l: 0 }));
-const h2h = {};
-ROUNDS.forEach((r, ri) => r.games.forEach(([a, b], gi) => {
-  const res = (RESULTS[ri + 1] || [])[gi];
-  if (res !== 1 && res !== 2) return;
-  const [win, lose] = res === 1 ? [a, b] : [b, a];
-  stat[win].p++; stat[win].w++; stat[lose].p++; stat[lose].l++;
-  h2h[win + "-" + lose] = "w"; h2h[lose + "-" + win] = "l";
-}));
+const stat = TEAMS.map((t, i) => ({ i, p: 0, w: 0, l: 0 }));
+const h2h = {}, sched = {};
+games.forEach(g => {
+  if (g.win === null) { sched[g.key] = g.time; return; }
+  const lose = g.win === g.a ? g.b : g.a;
+  stat[g.win].p++; stat[g.win].w++; stat[lose].p++; stat[lose].l++;
+  h2h[g.win + "-" + lose] = "w"; h2h[lose + "-" + g.win] = "l";
+});
 const order = [...stat].sort((x, y) =>
-  y.w - x.w || (h2h[x.i + "-" + y.i] === "w" ? -1 : h2h[y.i + "-" + x.i] === "w" ? 1 : 0) || x.i - y.i);
-const played = stat.some(s => s.p > 0);
+  y.w - x.w || x.l - y.l || (h2h[x.i + "-" + y.i] === "w" ? -1 : h2h[y.i + "-" + x.i] === "w" ? 1 : 0) || x.i - y.i);
+const anyPlayed = stat.some(s => s.p > 0);
 
 document.getElementById("standings").innerHTML = order.map((s, pos) => {
   const zone = pos < 4 ? "z-ub" : pos < 6 ? "z-lb" : "z-out";
-  return `<tr class="${zone}"><td class="zone"></td><td>${played ? pos + 1 : "–"}</td><td class="t">${esc(s.name)}</td>
-    <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td><b>${s.w}</b></td></tr>`;
+  return `<tr class="${zone}"><td class="zone"></td><td>${anyPlayed ? pos + 1 : "–"}</td><td class="t">${esc(tname(s.i))}</td>
+    <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td>${GAMES_EACH - s.p}</td><td><b>${s.w}</b></td></tr>`;
 }).join("");
 
-// шахматка
-const short = i => "К" + (i + 1);
+// список матчей
+const fmtDay = d => d ? d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) : "Время уточняется";
+const fmtWd  = d => d ? d.toLocaleDateString("ru-RU", { weekday: "short" }) + ", " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+const byTime = (x, y) => (x.time ? x.time.getTime() : Infinity) - (y.time ? y.time.getTime() : Infinity);
+const upcoming = games.filter(g => g.win === null).sort(byTime);
+const done = games.filter(g => g.win !== null).sort((x, y) => byTime(y, x));
+const row = g => {
+  const cls = i => g.win === null ? "" : g.win === i ? "w" : "l";
+  return `<div class="mrow ${g.win === null ? "up" : ""}">
+    <div class="mwhen"><b>${fmtDay(g.time)}</b>${fmtWd(g.time)}</div>
+    <div class="mteams"><span class="a ${cls(g.a)}">${esc(tname(g.a))}</span>
+      <span class="vs">${g.win === null ? "vs" : g.win === g.a ? "1 : 0" : "0 : 1"}</span>
+      <span class="${cls(g.b)}">${esc(tname(g.b))}</span></div>
+  </div>`;
+};
+const notSet = [];
+for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) if (!seenPairs.has(pairKey(i, j))) notSet.push([i, j]);
+const total = N * (N - 1) / 2;
+document.getElementById("m-count").textContent = `сыграно ${done.length} из ${total}`;
+document.getElementById("matches").innerHTML =
+  (upcoming.length ? `<div class="mgroup">Назначены</div>` + upcoming.map(row).join("") : "") +
+  (done.length ? `<div class="mgroup">Сыграны</div>` + done.map(row).join("") : "") +
+  (!games.length ? `<div class="mempty">Пока ни один матч не назначен. Как только команды договорятся о времени, игра появится здесь.</div>` : "") +
+  (notSet.length ? `<div class="mgroup">Ещё не назначены · ${notSet.length}</div>
+     <div class="pending">${notSet.map(([i, j]) => `<span>К${i + 1} – К${j + 1}</span>`).join("")}</div>` : "");
+
+// все пары (шахматка)
 document.getElementById("crosstable").innerHTML =
-  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th>${short(i)}</th>`).join("")}</tr></thead><tbody>` +
+  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th>К${i + 1}</th>`).join("")}</tr></thead><tbody>` +
   TEAMS.map((t, i) => `<tr><td class="t">${esc(t.name)}</td>${TEAMS.map((_, j) => {
     if (i === j) return `<td class="self"></td>`;
-    const r = h2h[i + "-" + j];
-    return r === "w" ? `<td class="w">W</td>` : r === "l" ? `<td class="l">L</td>` : `<td class="e">·</td>`;
+    const r = h2h[i + "-" + j], key = pairKey(i, j);
+    if (r) return `<td class="${r}">${r.toUpperCase()}</td>`;
+    if (key in sched) return `<td class="sch">${sched[key] ? sched[key].toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }) : "назн."}</td>`;
+    return `<td class="e">·</td>`;
   }).join("")}</tr>`).join("") + `</tbody>`;
 
-// туры
-document.getElementById("rounds").innerHTML = ROUNDS.map((r, ri) => `
-  <div class="panel round">
-    <div class="panel-title">Тур ${ri + 1}<span>отдыхает: ${esc(TEAMS[r.rest].name)}</span></div>
-    ${r.games.map(([a, b], gi) => {
-      const res = (RESULTS[ri + 1] || [])[gi];
-      return `<div class="game"><span class="a ${res === 1 ? "win" : ""}">${esc(TEAMS[a].name)}</span>
-        <span class="vs">${res === 1 ? "1 : 0" : res === 2 ? "0 : 1" : "vs"}</span>
-        <span class="b ${res === 2 ? "win" : ""}">${esc(TEAMS[b].name)}</span></div>`;
-    }).join("")}
-  </div>`).join("");
 // ---------------- плей-офф ----------------
 /* Сетка плей-офф. Когда станут известны участники, впиши название команды
    вместо подсказки в who, а счёт — в sc. */
