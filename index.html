@@ -104,20 +104,34 @@
   .head p { color: var(--muted); margin: 14px auto 0; max-width: 620px; }
 
   /* ---------- playoff ---------- */
-  .bracket { background: var(--panel); border: 1px solid var(--line); padding: 24px; overflow-x: auto; }
-  .bracket h4 { margin: 0 0 14px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
-  .bracket h4.ub { color: var(--radiant); }
-  .bracket h4.lb { color: var(--dire-2); margin-top: 28px; }
-  .brow { display: flex; align-items: center; gap: 0; min-width: 760px; }
-  .bcol { display: flex; flex-direction: column; gap: 12px; }
-  .arrow { width: 36px; height: 2px; background: var(--line); position: relative; flex: none; }
-  .arrow::after { content: ""; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left-color: var(--line); border-right: 0; }
-  .match { width: 200px; background: var(--panel-2); border: 1px solid var(--line); font-size: 14px; }
-  .match .slot { display: flex; justify-content: space-between; padding: 7px 10px; }
-  .match .slot + .slot { border-top: 1px solid var(--line); }
-  .match .slot span:last-child { color: var(--muted); }
-  .match .label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); padding: 5px 10px; background: rgba(201,161,90,.07); border-bottom: 1px solid var(--line); }
-  .match.final { border-color: var(--gold); box-shadow: 0 0 24px rgba(201,161,90,.15); }
+  .bracket { background: var(--panel); border: 1px solid var(--line); padding: 20px 20px 16px; }
+  .bk-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .bk-legend i { display: inline-block; width: 26px; height: 0; vertical-align: middle; margin-right: 8px; }
+  .lg-win { border-top: 2px solid var(--gold); }
+  .lg-lose { border-top: 2px dashed var(--dire-2); }
+  .bk-scroll { overflow-x: auto; padding-bottom: 6px; }
+  .bk { position: relative; width: 1080px; height: 530px; margin: 0 auto; }
+  .bk svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .bk-title { position: absolute; left: 30px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  .bk-title.ub { color: var(--radiant); top: 4px; }
+  .bk-title.lb { color: var(--dire-2); top: 292px; }
+  .m { position: absolute; width: 220px; background: var(--panel-2); border: 1px solid var(--line); font-size: 14px; }
+  .m .label { display: flex; justify-content: space-between; height: 26px; align-items: center; padding: 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--gold); background: rgba(201,161,90,.07); border-bottom: 1px solid var(--line); }
+  .m .label b { color: var(--text); font-weight: 700; }
+  .m .label span:last-child { color: var(--muted); }
+  .m .slot { display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 33px; padding: 0 10px; }
+  .m .slot + .slot { border-top: 1px solid var(--line); }
+  .m .slot .who { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m .slot .sc { color: var(--muted); }
+  .m .slot.lose .who { color: #e7907f; }
+  .m .slot.lose .who::before { content: "↓ "; color: var(--dire-2); }
+  .m .slot.win .who::before { content: "→ "; color: var(--gold); }
+  .m .slot.seed .who { color: var(--text); font-weight: 600; }
+  .m.gf { border-color: var(--gold); box-shadow: 0 0 30px rgba(201,161,90,.22); }
+  .m.gf .label { background: rgba(201,161,90,.18); }
+  .champ { position: absolute; width: 220px; text-align: center; font-family: "Cormorant SC", serif; font-size: 20px; color: var(--gold-2); }
+  .bk-hint { display: none; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  @media (max-width: 1140px) { .bk-hint { display: block; } }
 
   /* ---------- teams ---------- */
   .teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
@@ -297,37 +311,12 @@
     </div>
 
     <div class="bracket">
-      <h4 class="ub">Верхняя сетка</h4>
-      <div class="brow">
-        <div class="bcol">
-          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>1 место</span><span>–</span></div><div class="slot"><span>4 место</span><span>–</span></div></div>
-          <div class="match"><div class="label">Полуфинал ВС · Bo1</div><div class="slot"><span>2 место</span><span>–</span></div><div class="slot"><span>3 место</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Финал ВС · Bo3</div><div class="slot"><span>Победитель 1–4</span><span>–</span></div><div class="slot"><span>Победитель 2–3</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match final"><div class="label">Гранд-финал · Bo3</div><div class="slot"><span>Победитель ВС</span><span>–</span></div><div class="slot"><span>Победитель НС</span><span>–</span></div></div>
-        </div>
+      <div class="bk-legend">
+        <span><i class="lg-win"></i>Победитель проходит дальше</span>
+        <span><i class="lg-lose"></i>Проигравший из верхней сетки падает в нижнюю</span>
       </div>
-
-      <h4 class="lb">Нижняя сетка</h4>
-      <div class="brow">
-        <div class="bcol">
-          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 1–4</span><span>–</span></div><div class="slot"><span>5 место</span><span>–</span></div></div>
-          <div class="match"><div class="label">Раунд 1 НС · Bo1</div><div class="slot"><span>Проигр. 2–3</span><span>–</span></div><div class="slot"><span>6 место</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Полуфинал НС · Bo1</div><div class="slot"><span>Победитель</span><span>–</span></div><div class="slot"><span>Победитель</span><span>–</span></div></div>
-        </div>
-        <div class="arrow"></div>
-        <div class="bcol">
-          <div class="match"><div class="label">Финал НС · Bo1</div><div class="slot"><span>Победитель ПФ НС</span><span>–</span></div><div class="slot"><span>Проигр. финала ВС</span><span>–</span></div></div>
-        </div>
-      </div>
+      <div class="bk-scroll"><div class="bk" id="bk"></div></div>
+      <div class="bk-hint">Сетку можно листать вправо →</div>
     </div>
   </div>
 </section>
@@ -505,6 +494,43 @@ document.getElementById("rounds").innerHTML = ROUNDS.map((r, ri) => `
         <span class="b ${res === 2 ? "win" : ""}">${esc(TEAMS[b].name)}</span></div>`;
     }).join("")}
   </div>`).join("");
+// ---------------- плей-офф ----------------
+/* Сетка плей-офф. Когда станут известны участники, впиши название команды
+   вместо подсказки в who, а счёт — в sc. */
+const PLAYOFF = [
+  { id: "М1", t: "Полуфинал ВС", bo: "Bo1", x: 0,   y: 34,  s: [["1 место группы", "seed"], ["4 место группы", "seed"]] },
+  { id: "М2", t: "Полуфинал ВС", bo: "Bo1", x: 0,   y: 150, s: [["2 место группы", "seed"], ["3 место группы", "seed"]] },
+  { id: "М5", t: "Финал ВС",     bo: "Bo3", x: 270, y: 92,  s: [["Победитель М1", "win"], ["Победитель М2", "win"]] },
+  { id: "М3", t: "Раунд 1 НС",   bo: "Bo1", x: 0,   y: 322, s: [["Проигравший М1", "lose"], ["5 место группы", "seed"]] },
+  { id: "М4", t: "Раунд 1 НС",   bo: "Bo1", x: 0,   y: 438, s: [["Проигравший М2", "lose"], ["6 место группы", "seed"]] },
+  { id: "М6", t: "Полуфинал НС", bo: "Bo1", x: 270, y: 380, s: [["Победитель М3", "win"], ["Победитель М4", "win"]] },
+  { id: "М7", t: "Финал НС",     bo: "Bo1", x: 540, y: 380, s: [["Проигравший М5", "lose"], ["Победитель М6", "win"]] },
+  { id: "М8", t: "Гранд-финал",  bo: "Bo3", x: 810, y: 236, gf: true, s: [["Победитель М5 · ВС", "win"], ["Победитель М7 · НС", "win"]] },
+];
+(function renderBracket() {
+  const OX = 30; // отступ слева под линии проигравших
+  const win = "M220 81 H245 V135 H270 M220 197 H245 V169 H270" +       // М1,М2 -> М5
+              " M220 369 H245 V423 H270 M220 485 H245 V457 H270" +      // М3,М4 -> М6
+              " M490 440 H515 V457 H540" +                              // М6 -> М7
+              " M490 139 H785 V279 H810 M760 427 H785 V313 H810";       // М5,М7 -> гранд-финал
+  const lose = "M0 81 H-20 V365 H0 M0 197 H-10 V481 H0" +              // М1 -> М3, М2 -> М4
+               " M400 186 V210 H525 V423 H540";                         // М5 -> М7
+  const box = m => `<div class="m ${m.gf ? "gf" : ""}" style="left:${m.x + OX}px;top:${m.y}px">
+      <div class="label"><span><b>${m.id}</b> · ${m.t}</span><span>${m.bo}</span></div>
+      ${m.s.map(([who, kind, sc]) => `<div class="slot ${kind}"><span class="who">${esc(who)}</span><span class="sc">${sc ?? "–"}</span></div>`).join("")}
+    </div>`;
+  document.getElementById("bk").innerHTML = `
+    <svg viewBox="0 0 1080 530" aria-hidden="true">
+      <g transform="translate(${OX},0)" fill="none" stroke-width="2">
+        <path d="${lose}" stroke="var(--dire-2)" stroke-dasharray="5 5" opacity=".75"/>
+        <path d="${win}" stroke="var(--gold)" opacity=".8"/>
+      </g>
+    </svg>
+    <div class="bk-title ub">Верхняя сетка</div>
+    <div class="bk-title lb">Нижняя сетка</div>
+    ${PLAYOFF.map(box).join("")}
+    <div class="champ" style="left:${810 + OX}px;top:${236 + 104}px">🏆 Чемпион</div>`;
+})();
 </script>
 </body>
 </html>
