@@ -108,10 +108,15 @@
   .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .team-name { font-family: var(--head); font-weight: 600; font-size: 24px; line-height: 1.1; margin: 0; text-transform: uppercase; letter-spacing: .02em; }
   .roster { list-style: none; margin: 0; padding: 4px 0; }
-  .roster li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 16px; }
+  .roster li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 16px; }
   .roster li + li { border-top: 1px solid rgba(42,45,50,.7); }
-  .roster .name { white-space: nowrap; }
-  .roster .nick { color: var(--muted); font-size: 14px; text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; }
+  .roster .who { display: flex; flex-direction: column; min-width: 0; }
+  .roster .name { white-space: nowrap; line-height: 1.25; }
+  .roster .nick { color: var(--muted); font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .roster .pts { font-family: var(--head); font-weight: 600; font-size: 16px; color: var(--gold-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .team-head { min-width: 0; }
+  .team-avg { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .team-avg b { font-family: var(--head); font-weight: 600; color: var(--text); }
   .roster .nick.empty { color: var(--dim); }
 
   /* ---------- group ---------- */
@@ -366,53 +371,53 @@
    ===================================================================== */
 const TEAMS = [
   { name: "Команда 1", players: [
-    ["Егор Родионов", "путеводитель по губам"],
-    ["Дмитрий Сокол", "Tttttttttttttttttttttttttttttttttt"],
-    ["Максим Вербицкий", "tony_crosss"],
-    ["Антон Хабибуллин", "Vozduh Khan"],
-    ["Владислав Липунов", "vedeep"],
+    ["Егор Родионов", "путеводитель по губам", 1800],
+    ["Дмитрий Сокол", "Tttttttttttttttttttttttttttttttttt", 2850],
+    ["Максим Вербицкий", "tony_crosss", 5500],
+    ["Антон Хабибуллин", "Vozduh Khan", 2800],
+    ["Владислав Липунов", "vedeep", 1200],
   ]},
   { name: "Команда 2", players: [
-    ["Александр Филипченко", "SWAGΛMINΛTOR"],
-    ["Виталик Пузанов", "V17"],
-    ["Константин Филитович", "Wouk"],
-    ["Андрей Пойманов", "Играю Голым"],
-    ["Михаил Сабашный", "Darkanus"],
+    ["Александр Филипченко", "SWAGΛMINΛTOR", 2750],
+    ["Виталик Пузанов", "V17", 3700],
+    ["Константин Филитович", "Wouk", 3650],
+    ["Андрей Пойманов", "Играю Голым", 1200],
+    ["Михаил Сабашный", "Darkanus", 3350],
   ]},
   { name: "Команда 3", players: [
-    ["Григорий Власов", "Ditya Ra"],
-    ["Илья Булва", "TheEnd"],
-    ["Эдуард Гребнёв", "Филейный Кусь"],
-    ["Виктор Штельмашенко", "Шаманчик связывай"],
-    ["Никита Пестрецов", "воронежский рыгуль"],
+    ["Григорий Власов", "Ditya Ra", 3950],
+    ["Илья Булва", "TheEnd", 4200],
+    ["Эдуард Гребнёв", "Филейный Кусь", 2500],
+    ["Виктор Штельмашенко", "Шаманчик связывай", 2800],
+    ["Никита Пестрецов", "воронежский рыгуль", 1200],
   ]},
   { name: "Команда 4", players: [
-    ["Даниил Дроздов", "Darfik"],
-    ["Максим Шершнёв", "YOUtopia"],
-    ["Алексей Беляев", "Evisot"],
-    ["Вероника Жукова", "Кирилл"],
-    ["Даниил Воронцов", "⊹₊фNд3р_оТ_б0г@₊⊹"],
+    ["Даниил Дроздов", "Darfik", 7000],
+    ["Максим Шершнёв", "YOUtopia", 3000],
+    ["Алексей Беляев", "Evisot", 800],
+    ["Вероника Жукова", "Кирилл", 1600],
+    ["Даниил Воронцов", "⊹₊фNд3р_оТ_б0г@₊⊹", 2300],
   ]},
   { name: "Команда 5", players: [
-    ["Валерий Ночвин", "NightWin"],
-    ["Егор Руф", "IIoXuTuTeJLb_geTuWek1971"],
-    ["Янг Макан", "YungMacan2016"],
-    ["Илья Назарюк", "P'er Dun"],
-    ["Егор Миллер", "detached"],
+    ["Валерий Ночвин", "NightWin", 4500],
+    ["Егор Руф", "IIoXuTuTeJLb_geTuWek1971", 3000],
+    ["Янг Макан", "YungMacan2016", 1500],
+    ["Илья Назарюк", "P'er Dun", 4100],
+    ["Егор Миллер", "detached", 500],
   ]},
   { name: "Команда 6", players: [
-    ["Сергей Троянский", "Самость"],
-    ["Захар Пашенцев", "shojurue"],
-    ["Андрей Арапов", "undead"],
-    ["Даниил Зеленин", "Phoenix"],
-    ["Антон Набокин", "Solayter"],
+    ["Сергей Троянский", "Самость", 5000],
+    ["Захар Пашенцев", "shojurue", 4000],
+    ["Андрей Арапов", "undead", 800],
+    ["Даниил Зеленин", "Phoenix", 2000],
+    ["Антон Набокин", "Solayter", 2100],
   ]},
   { name: "Команда 7", players: [
-    ["Алексей Шеменков", "AlphaNipple"],
-    ["Иван Кравцов", "GUSTAVO"],
-    ["Андрей Дашиневич", "Sintex"],
-    ["Игорь Зимин", "Failer The Great"],
-    ["Лёха Целых", "lx4"],
+    ["Алексей Шеменков", "AlphaNipple", 3450],
+    ["Иван Кравцов", "GUSTAVO", 4300],
+    ["Андрей Дашиневич", "Sintex", 1000],
+    ["Игорь Зимин", "Failer The Great", 3500],
+    ["Лёха Целых", "lx4", 1500],
   ]},
 ];
 
@@ -436,12 +441,15 @@ document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
   <article class="team" style="--tc:${TEAM_COLORS[i]}">
     <div class="team-top">
       <div class="logo" data-logo="logos/team-${i + 1}.png"></div>
-      <div>
+      <div class="team-head">
         <h3 class="team-name">${esc(t.name)}</h3>
+        <div class="team-avg">Средний ПТС <b>${Math.round(t.players.reduce((s, p) => s + (p[2] || 0), 0) / t.players.length)}</b></div>
       </div>
     </div>
     <ul class="roster">
-      ${t.players.map(([n, k]) => `<li><span class="name">${esc(n)}</span><span class="nick ${k ? "" : "empty"}">${k ? esc(k) : "—"}</span></li>`).join("")}
+      ${t.players.map(([n, k, pts]) => `<li>
+        <span class="who"><span class="name">${esc(n)}</span><span class="nick ${k ? "" : "empty"}">${k ? esc(k) : "—"}</span></span>
+        <span class="pts">${pts ?? "—"}</span></li>`).join("")}
     </ul>
   </article>`).join("");
 
