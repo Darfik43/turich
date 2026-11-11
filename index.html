@@ -115,8 +115,6 @@
   .roster .nick { color: var(--muted); font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .roster .pts { font-family: var(--head); font-weight: 600; font-size: 16px; color: var(--gold-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
   .team-head { min-width: 0; }
-  .team-avg { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .team-avg b { font-family: var(--head); font-weight: 600; color: var(--text); }
   .roster .nick.empty { color: var(--dim); }
 
   /* ---------- group ---------- */
@@ -443,7 +441,6 @@ document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
       <div class="logo" data-logo="logos/team-${i + 1}.png"></div>
       <div class="team-head">
         <h3 class="team-name">${esc(t.name)}</h3>
-        <div class="team-avg">Средний ПТС <b>${Math.round(t.players.reduce((s, p) => s + (p[2] || 0), 0) / t.players.length)}</b></div>
       </div>
     </div>
     <ul class="roster">
