@@ -193,9 +193,22 @@
   @media (max-width: 1140px) { .bk-hint { display: block; } }
 
   /* ---------- streams ---------- */
-  .streams { display: flex; }
+  .streams { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .streamer .st { font-family: var(--head); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); white-space: nowrap; }
+  .streamer.is-live { border-left-color: #eb0400; }
+  .streamer.is-live .st { color: #fff; background: #eb0400; padding: 2px 7px; }
+  .live-wrap { margin-top: 24px; }
+  .live-title { display: flex; align-items: center; gap: 10px; font-family: var(--head); font-size: 15px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+  .live-title .dot { width: 10px; height: 10px; border-radius: 50%; background: #5b6067; }
+  .live-wrap.has-live .live-title .dot { background: #eb0400; box-shadow: 0 0 0 4px rgba(235,4,0,.2); }
+  .live-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 12px; }
+  .live-grid .player { display: none; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--line); }
+  .live-grid .player.on { display: block; }
+  .live-grid .player iframe { width: 100%; height: 100%; display: block; border: 0; }
+  .live-empty { padding: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  .live-wrap.has-live .live-empty { display: none; }
   .streamer {
-    display: flex; align-items: center; gap: 16px; width: 100%; max-width: 480px;
+    display: flex; align-items: center; gap: 16px; width: 100%;
     padding: 14px 16px; text-decoration: none;
     background: var(--panel); border: 1px solid var(--line); border-left: 3px solid #9146ff;
   }
@@ -204,7 +217,6 @@
   .streamer .sinfo { flex: 1; min-width: 0; }
   .streamer .sinfo b { display: block; font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; }
   .streamer .sinfo small { color: var(--muted); font-size: 14px; }
-  .streamer .go { color: #bf94ff; font-size: 14px; white-space: nowrap; }
 
   footer { padding: 28px 0; color: var(--dim); font-size: 13px; border-top: 1px solid var(--line); }
 
@@ -347,12 +359,11 @@
       <h2>Стримеры</h2>
       <p>Матчи турнира в прямом эфире.</p>
     </div>
-    <div class="streams">
-      <a class="streamer" href="https://www.twitch.tv/darfik" target="_blank" rel="noopener">
-        <span class="tw" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M4.3 2 3 5.4v13.7h4.7V22h2.6l2.6-2.9h3.9L22 13.9V2H4.3Zm15.9 11-3.1 3.1h-5.2l-2.6 2.6v-2.6H5.1V3.8h15.1V13Zm-3.4-6.3v5.4H15V6.7h1.8Zm-4.9 0v5.4H10V6.7h1.9Z"/></svg></span>
-        <span class="sinfo"><b>darfik</b><small>twitch.tv/darfik</small></span>
-        <span class="go">Смотреть →</span>
-      </a>
+    <div class="streams" id="streamers"></div>
+    <div class="live-wrap">
+      <div class="live-title"><span class="dot"></span>Сейчас в эфире</div>
+      <div class="live-grid" id="live-grid"></div>
+      <div class="live-empty" id="live-empty">Сейчас никто не стримит. Как только кто-то из стримеров выйдет в эфир, трансляция появится здесь.</div>
     </div>
   </div>
 </section>
@@ -568,6 +579,44 @@ const PLAYOFF = [
     <div class="bk-title lb">Нижняя сетка</div>
     ${PLAYOFF.map(box).join("")}
     <div class="champ" style="left:${810 + OX}px;top:${236 + 104}px">🏆 Чемпион</div>`;
+})();
+
+// ---------------- стримеры ----------------
+/* Логины каналов на Twitch. Чтобы добавить стримера — допиши логин. */
+const STREAMERS = ["darfik", "tony_crosss_cs", "toews_82"];
+
+(function renderStreams() {
+  const twIcon = `<svg viewBox="0 0 24 24" width="26" height="26"><path fill="currentColor" d="M4.3 2 3 5.4v13.7h4.7V22h2.6l2.6-2.9h3.9L22 13.9V2H4.3Zm15.9 11-3.1 3.1h-5.2l-2.6 2.6v-2.6H5.1V3.8h15.1V13Zm-3.4-6.3v5.4H15V6.7h1.8Zm-4.9 0v5.4H10V6.7h1.9Z"/></svg>`;
+  document.getElementById("streamers").innerHTML = STREAMERS.map(c => `
+    <a class="streamer" id="s-${c}" href="https://www.twitch.tv/${c}" target="_blank" rel="noopener">
+      <span class="tw" aria-hidden="true">${twIcon}</span>
+      <span class="sinfo"><b>${esc(c)}</b><small>twitch.tv/${esc(c)}</small></span>
+      <span class="st">офлайн</span>
+    </a>`).join("");
+  document.getElementById("live-grid").innerHTML = STREAMERS.map(c => `<div class="player" id="p-${c}"></div>`).join("");
+
+  // Twitch-плеер работает только на настоящем домене (не при открытии файла с диска)
+  if (location.protocol !== "https:") return;
+  const live = new Set();
+  const update = () => document.querySelector(".live-wrap").classList.toggle("has-live", live.size > 0);
+  const s = document.createElement("script");
+  s.src = "https://player.twitch.tv/js/embed/v1.js";
+  s.onload = () => STREAMERS.forEach(c => {
+    const player = new Twitch.Player("p-" + c, {
+      channel: c, parent: [location.hostname], width: "100%", height: "100%", autoplay: false, muted: true,
+    });
+    const set = on => {
+      on ? live.add(c) : live.delete(c);
+      document.getElementById("p-" + c).classList.toggle("on", on);
+      const card = document.getElementById("s-" + c);
+      card.classList.toggle("is-live", on);
+      card.querySelector(".st").textContent = on ? "в эфире" : "офлайн";
+      update();
+    };
+    player.addEventListener(Twitch.Player.ONLINE, () => set(true));
+    player.addEventListener(Twitch.Player.OFFLINE, () => set(false));
+  });
+  document.head.appendChild(s);
 })();
 </script>
 </body>
