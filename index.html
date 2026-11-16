@@ -508,8 +508,8 @@ document.getElementById("standings").innerHTML = order.map((s, pos) => {
 }).join("");
 
 // список матчей
-const fmtDay = d => d ? d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) : "Время уточняется";
-const fmtWd  = d => d ? d.toLocaleDateString("ru-RU", { weekday: "short" }) + ", " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+const fmtDay = d => d ? d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", timeZone: "Europe/Moscow" }) : "Время уточняется";
+const fmtWd  = d => d ? d.toLocaleDateString("ru-RU", { weekday: "short", timeZone: "Europe/Moscow" }) + ", " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" }) + " МСК" : "";
 const byTime = (x, y) => (x.time ? x.time.getTime() : Infinity) - (y.time ? y.time.getTime() : Infinity);
 const upcoming = games.filter(g => g.win === null).sort(byTime);
 const done = games.filter(g => g.win !== null).sort((x, y) => byTime(y, x));
@@ -540,7 +540,7 @@ document.getElementById("crosstable").innerHTML =
     if (i === j) return `<td class="self"></td>`;
     const r = h2h[i + "-" + j], key = pairKey(i, j);
     if (r) return `<td class="${r}">${r.toUpperCase()}</td>`;
-    if (key in sched) return `<td class="sch">${sched[key] ? sched[key].toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }) : "назн."}</td>`;
+    if (key in sched) return `<td class="sch">${sched[key] ? sched[key].toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "Europe/Moscow" }) : "назн."}</td>`;
     return `<td class="e">·</td>`;
   }).join("")}</tr>`).join("") + `</tbody>`;
 
