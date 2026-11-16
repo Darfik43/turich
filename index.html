@@ -101,11 +101,11 @@
   .team { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--tc, var(--red)); }
   .team-top { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bar); border-bottom: 1px solid var(--line); }
   .logo {
-    width: 56px; height: 56px; flex: none; position: relative; overflow: hidden;
+    width: 72px; height: 72px; flex: none; position: relative; overflow: hidden;
     background: #0b0c0d; border: 1px solid var(--line-2);
     box-shadow: inset 0 0 0 3px #0b0c0d, inset 0 0 0 4px rgba(255,255,255,.04);
   }
-  .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .logo img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 3px; }
   .team-name { font-family: var(--head); font-weight: 600; font-size: 24px; line-height: 1.1; margin: 0; text-transform: uppercase; letter-spacing: .02em; }
   .roster { list-style: none; margin: 0; padding: 4px 0; }
   .roster li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 16px; }
@@ -375,7 +375,7 @@
 <script>
 /* =====================================================================
    ДАННЫЕ ТУРНИРА — правь здесь.
-   Лого команды: положи картинку в logos/team-1.png ... logos/team-7.png
+   Лого команды: logos/team-1.webp ... logos/team-7.webp
    (квадратная, от 256×256). Пока файла нет, показывается заглушка.
    ===================================================================== */
 const TEAMS = [
@@ -386,42 +386,42 @@ const TEAMS = [
     ["Антон Хабибуллин", "Vozduh Khan", 2800],
     ["Владислав Липунов", "vedeep", 1200],
   ]},
-  { name: "Команда 2", players: [
+  { name: "BetBoomers", players: [
     ["Александр Филипченко", "SWAGΛMINΛTOR", 2750],
     ["Виталик Пузанов", "V17", 3700],
     ["Константин Филитович", "Wouk", 3650],
     ["Андрей Пойманов", "Играю Голым", 1200],
     ["Михаил Сабашный", "Darkanus", 3350],
   ]},
-  { name: "Команда 3", players: [
+  { name: "zaCALLo4cka", players: [
     ["Григорий Власов", "Ditya Ra", 3950],
     ["Илья Булва", "TheEnd", 4200],
     ["Эдуард Гребнёв", "Филейный Кусь", 2500],
     ["Виктор Штельмашенко", "Шаманчик связывай", 2800],
     ["Никита Пестрецов", "воронежский рыгуль", 1200],
   ]},
-  { name: "Команда 4", players: [
+  { name: "Team Feedality", players: [
     ["Даниил Дроздов", "Darfik", 7000],
     ["Максим Шершнёв", "YOUtopia", 3000],
     ["Алексей Беляев", "Evisot", 800],
     ["Вероника Жукова", "Кирилл", 1600],
     ["Даниил Воронцов", "⊹₊фNд3р_оТ_б0г@₊⊹", 2300],
   ]},
-  { name: "Команда 5", players: [
+  { name: "Buyback$treet Boy$", players: [
     ["Валерий Ночвин", "NightWin", 4500],
     ["Егор Руф", "IIoXuTuTeJLb_geTuWek1971", 3000],
     ["Янг Макан", "YungMacan2016", 1500],
     ["Илья Назарюк", "P'er Dun", 4100],
     ["Егор Миллер", "detached", 500],
   ]},
-  { name: "Команда 6", players: [
+  { name: "Hilimsya-Jivem", players: [
     ["Сергей Троянский", "Самость", 5000],
     ["Захар Пашенцев", "shojurue", 4000],
     ["Андрей Арапов", "undead", 800],
     ["Даниил Зеленин", "Phoenix", 2000],
     ["Антон Набокин", "Solayter", 2100],
   ]},
-  { name: "Команда 7", players: [
+  { name: "Flush Royal", players: [
     ["Алексей Шеменков", "AlphaNipple", 3450],
     ["Иван Кравцов", "GUSTAVO", 4300],
     ["Андрей Дашиневич", "Sintex", 1000],
@@ -449,7 +449,7 @@ const TEAM_COLORS = ["#3375ff", "#66ffbf", "#bf00bf", "#f3f00b", "#ff6b00", "#fe
 document.getElementById("teams-list").innerHTML = TEAMS.map((t, i) => `
   <article class="team" style="--tc:${TEAM_COLORS[i]}">
     <div class="team-top">
-      <div class="logo" data-logo="logos/team-${i + 1}.png"></div>
+      <div class="logo" data-logo="logos/team-${i + 1}.webp"></div>
       <div class="team-head">
         <h3 class="team-name">${esc(t.name)}</h3>
       </div>
