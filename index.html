@@ -480,73 +480,142 @@ const tname = i => TEAMS[i].name;
 const pairKey = (i, j) => Math.min(i, j) + "-" + Math.max(i, j);
 const parseTime = s => { const d = new Date(String(s).replace(" ", "T")); return isNaN(d) ? null : d; };
 
-// приводим к индексам 0..N-1, отбрасываем ошибки и дубли пар
-const games = [], seenPairs = new Set();
-MATCHES.forEach((m, k) => {
-  const a = m.a - 1, b = m.b - 1;
-  if (!(a >= 0 && a < N && b >= 0 && b < N && a !== b)) return console.warn("MATCHES[" + k + "]: неверные номера команд", m);
-  const key = pairKey(a, b);
-  if (seenPairs.has(key)) return console.warn("MATCHES[" + k + "]: эта пара уже есть", m);
-  seenPairs.add(key);
-  const win = m.win === m.a ? a : m.win === m.b ? b : null;
-  games.push({ a, b, key, time: m.time ? parseTime(m.time) : null, win });
-});
+/* Ответы Google Формы «Турич — матчи и результаты» попадают в таблицу «Турич — ответы формы».
+   Сайт читает её при каждом открытии и склеивает ответы по паре команд:
+   время — из последнего ответа, где оно указано; результат — из последнего ответа с победителем. */
+const FORM_SHEET_ID = "15fmjKhgDK2mQ4zNPyErbSzchpkQN1JSJzEtRMKo7QO8";
+const FORM_TEST_CSV = null; // только для тестовой страницы: снимок ответов вместо живой таблицы
 
-// подсчёт
-const stat = TEAMS.map((t, i) => ({ i, p: 0, w: 0, l: 0 }));
-const h2h = {}, sched = {};
-games.forEach(g => {
-  if (g.win === null) { sched[g.key] = g.time; return; }
-  const lose = g.win === g.a ? g.b : g.a;
-  stat[g.win].p++; stat[g.win].w++; stat[lose].p++; stat[lose].l++;
-  h2h[g.win + "-" + lose] = "w"; h2h[lose + "-" + g.win] = "l";
-});
-const order = [...stat].sort((x, y) =>
-  y.w - x.w || x.l - y.l || (h2h[x.i + "-" + y.i] === "w" ? -1 : h2h[y.i + "-" + x.i] === "w" ? 1 : 0) || x.i - y.i);
-const anyPlayed = stat.some(s => s.p > 0);
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+// "11/17/2026 22:00:00" (время в таблице — московское) -> Date
+function sheetDate(s) {
+  const m = String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (!m) return null;
+  const p = n => String(n).padStart(2, "0");
+  return new Date(`${m[3]}-${p(m[1])}-${p(m[2])}T${p(m[4] || 0)}:${m[5] || "00"}:00+03:00`);
+}
+// ответы формы -> события по групповым матчам
+function formEvents(csv) {
+  const rows = parseCSV(csv).slice(1).filter(r => r.length >= 4 && r[0]);
+  const idx = name => TEAMS.findIndex(t => t.name === String(name).trim());
+  const out = [];
+  rows.forEach((r, n) => {
+    const [ts, match, when, winner] = r;
+    const g = String(match).match(/^Группа · (.+) – (.+)$/);
+    if (!g) return;                                   // матчи плей-офф (М1–М8) подключим позже
+    const a = idx(g[1]), b = idx(g[2]);
+    if (a < 0 || b < 0 || a === b) return console.warn("Форма: не узнал пару", r);
+    const ev = { order: (sheetDate(ts) || new Date(0)).getTime() + n / 1000, a, b, time: when ? sheetDate(when) : null };
+    if (winner === "Отменить результат") ev.cancel = true;
+    else if (winner && winner !== "Ещё не сыгран") {
+      const w = idx(winner);
+      if (w !== a && w !== b) return console.warn("Форма: победитель не из этой пары", r);
+      ev.win = w;
+    }
+    out.push(ev);
+  });
+  return out;
+}
+// ручные MATCHES + ответы формы -> по одной записи на пару
+function mergeGames(events) {
+  const manual = [];
+  MATCHES.forEach((m, k) => {
+    const a = m.a - 1, b = m.b - 1;
+    if (!(a >= 0 && a < N && b >= 0 && b < N && a !== b)) return console.warn("MATCHES[" + k + "]: неверные номера команд", m);
+    const ev = { order: -1e15 + k, a, b, time: m.time ? parseTime(m.time) : null };
+    if (m.win === m.a || m.win === m.b) ev.win = m.win - 1;
+    manual.push(ev);
+  });
+  const byKey = new Map();
+  [...manual, ...events].sort((x, y) => x.order - y.order).forEach(ev => {
+    const key = pairKey(ev.a, ev.b);
+    const g = byKey.get(key) || { a: ev.a, b: ev.b, key, time: null, win: null };
+    if (ev.time) g.time = ev.time;
+    if (ev.cancel) g.win = null;
+    if (ev.win !== undefined) g.win = ev.win;
+    byKey.set(key, g);
+  });
+  return [...byKey.values()];
+}
 
-document.getElementById("standings").innerHTML = order.map((s, pos) => {
-  const zone = pos < 4 ? "z-ub" : pos < 6 ? "z-lb" : "z-out";
-  return `<tr class="${zone}"><td class="zone"></td><td>${anyPlayed ? pos + 1 : "–"}</td><td class="t">${esc(tname(s.i))}</td>
-    <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td>${GAMES_EACH - s.p}</td><td><b>${s.w}</b></td></tr>`;
-}).join("");
-
-// список матчей
 const fmtDay = d => d ? d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", timeZone: "Europe/Moscow" }) : "Время уточняется";
 const fmtWd  = d => d ? d.toLocaleDateString("ru-RU", { weekday: "short", timeZone: "Europe/Moscow" }) + ", " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" }) + " МСК" : "";
 const byTime = (x, y) => (x.time ? x.time.getTime() : Infinity) - (y.time ? y.time.getTime() : Infinity);
-const upcoming = games.filter(g => g.win === null).sort(byTime);
-const done = games.filter(g => g.win !== null).sort((x, y) => byTime(y, x));
-const row = g => {
-  const cls = i => g.win === null ? "" : g.win === i ? "w" : "l";
-  return `<div class="mrow ${g.win === null ? "up" : ""}">
-    <div class="mwhen"><b>${fmtDay(g.time)}</b>${fmtWd(g.time)}</div>
-    <div class="mteams"><span class="a ${cls(g.a)}">${esc(tname(g.a))}</span>
-      <span class="vs">${g.win === null ? "vs" : g.win === g.a ? "1 : 0" : "0 : 1"}</span>
-      <span class="${cls(g.b)}">${esc(tname(g.b))}</span></div>
-  </div>`;
-};
-const notSet = [];
-for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) if (!seenPairs.has(pairKey(i, j))) notSet.push([i, j]);
-const total = N * (N - 1) / 2;
-document.getElementById("m-count").textContent = `сыграно ${done.length} из ${total}`;
-document.getElementById("matches").innerHTML =
-  (upcoming.length ? `<div class="mgroup">Назначены</div>` + upcoming.map(row).join("") : "") +
-  (done.length ? `<div class="mgroup">Сыграны</div>` + done.map(row).join("") : "") +
-  (!games.length ? `<div class="mempty">Пока ни один матч не назначен. Как только команды договорятся о времени, игра появится здесь.</div>` : "") +
-  (notSet.length ? `<div class="mgroup">Ещё не назначены · ${notSet.length}</div>
-     <div class="pending">${notSet.map(([i, j]) => `<span>К${i + 1} – К${j + 1}</span>`).join("")}</div>` : "");
 
-// все пары (шахматка)
-document.getElementById("crosstable").innerHTML =
-  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th class="ch" title="${esc(TEAMS[i].name)}">${esc(TEAMS[i].name)}</th>`).join("")}</tr></thead><tbody>` +
-  TEAMS.map((t, i) => `<tr><td class="t">${esc(t.name)}</td>${TEAMS.map((_, j) => {
-    if (i === j) return `<td class="self"></td>`;
-    const r = h2h[i + "-" + j], key = pairKey(i, j);
-    if (r) return `<td class="${r}">${r.toUpperCase()}</td>`;
-    if (key in sched) return `<td class="sch">${sched[key] ? sched[key].toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "Europe/Moscow" }) : "назн."}</td>`;
-    return `<td class="e">·</td>`;
-  }).join("")}</tr>`).join("") + `</tbody>`;
+function renderGroup(games) {
+  const seenPairs = new Set(games.map(g => g.key));
+  const stat = TEAMS.map((t, i) => ({ i, p: 0, w: 0, l: 0 }));
+  const h2h = {}, sched = {};
+  games.forEach(g => {
+    if (g.win === null) { sched[g.key] = g.time; return; }
+    const lose = g.win === g.a ? g.b : g.a;
+    stat[g.win].p++; stat[g.win].w++; stat[lose].p++; stat[lose].l++;
+    h2h[g.win + "-" + lose] = "w"; h2h[lose + "-" + g.win] = "l";
+  });
+  const order = [...stat].sort((x, y) =>
+    y.w - x.w || x.l - y.l || (h2h[x.i + "-" + y.i] === "w" ? -1 : h2h[y.i + "-" + x.i] === "w" ? 1 : 0) || x.i - y.i);
+  const anyPlayed = stat.some(s => s.p > 0);
+
+  document.getElementById("standings").innerHTML = order.map((s, pos) => {
+    const zone = pos < 4 ? "z-ub" : pos < 6 ? "z-lb" : "z-out";
+    return `<tr class="${zone}"><td class="zone"></td><td>${anyPlayed ? pos + 1 : "–"}</td><td class="t">${esc(tname(s.i))}</td>
+      <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td>${GAMES_EACH - s.p}</td><td><b>${s.w}</b></td></tr>`;
+  }).join("");
+
+  const upcoming = games.filter(g => g.win === null).sort(byTime);
+  const done = games.filter(g => g.win !== null).sort((x, y) => byTime(y, x));
+  const row = g => {
+    const cls = i => g.win === null ? "" : g.win === i ? "w" : "l";
+    return `<div class="mrow ${g.win === null ? "up" : ""}">
+      <div class="mwhen"><b>${fmtDay(g.time)}</b>${fmtWd(g.time)}</div>
+      <div class="mteams"><span class="a ${cls(g.a)}">${esc(tname(g.a))}</span>
+        <span class="vs">${g.win === null ? "vs" : g.win === g.a ? "1 : 0" : "0 : 1"}</span>
+        <span class="${cls(g.b)}">${esc(tname(g.b))}</span></div>
+    </div>`;
+  };
+  const notSet = [];
+  for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) if (!seenPairs.has(pairKey(i, j))) notSet.push([i, j]);
+  const total = N * (N - 1) / 2;
+  document.getElementById("m-count").textContent = `сыграно ${done.length} из ${total}`;
+  document.getElementById("matches").innerHTML =
+    (upcoming.length ? `<div class="mgroup">Назначены</div>` + upcoming.map(row).join("") : "") +
+    (done.length ? `<div class="mgroup">Сыграны</div>` + done.map(row).join("") : "") +
+    (!games.length ? `<div class="mempty">Пока ни один матч не назначен. Как только команды договорятся о времени, игра появится здесь.</div>` : "") +
+    (notSet.length ? `<div class="mgroup">Ещё не назначены · ${notSet.length}</div>
+       <div class="pending">${notSet.map(([i, j]) => `<span>${esc(tname(i))} – ${esc(tname(j))}</span>`).join("")}</div>` : "");
+
+  document.getElementById("crosstable").innerHTML =
+    `<thead><tr><th></th>${TEAMS.map((_, i) => `<th class="ch" title="${esc(TEAMS[i].name)}">${esc(TEAMS[i].name)}</th>`).join("")}</tr></thead><tbody>` +
+    TEAMS.map((t, i) => `<tr><td class="t">${esc(t.name)}</td>${TEAMS.map((_, j) => {
+      if (i === j) return `<td class="self"></td>`;
+      const r = h2h[i + "-" + j], key = pairKey(i, j);
+      if (r) return `<td class="${r}">${r.toUpperCase()}</td>`;
+      if (key in sched) return `<td class="sch">${sched[key] ? sched[key].toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "Europe/Moscow" }) : "назн."}</td>`;
+      return `<td class="e">·</td>`;
+    }).join("")}</tr>`).join("") + `</tbody>`;
+}
+
+// сначала рисуем то, что есть в MATCHES, затем подмешиваем ответы формы
+renderGroup(mergeGames([]));
+(async () => {
+  try {
+    const csv = FORM_TEST_CSV ?? await (await fetch(`https://docs.google.com/spreadsheets/d/${FORM_SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`)).text();
+    if (!/^"?Timestamp/i.test(csv.trim())) throw new Error("таблица ответов недоступна");
+    renderGroup(mergeGames(formEvents(csv)));
+  } catch (e) { console.warn("Ответы формы не загрузились, показываю только MATCHES:", e.message); }
+})();
 
 // ---------------- плей-офф ----------------
 /* Сетка плей-офф. Когда станут известны участники, впиши название команды
