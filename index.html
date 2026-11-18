@@ -134,7 +134,9 @@
   .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
 
   .cross { overflow-x: auto; margin-top: 20px; }
-  .cross table { min-width: 520px; }
+  .cross table { min-width: 860px; table-layout: fixed; }
+  .cross th:first-child { width: 170px; }
+  .cross th.ch { text-transform: none; letter-spacing: 0; font-size: 13px; line-height: 1.2; vertical-align: bottom; overflow-wrap: anywhere; color: var(--text); }
   .cross td, .cross th { padding: 8px 6px; border-right: 1px solid var(--line); }
   .cross td:last-child, .cross th:last-child { border-right: 0; }
   .cross td.self { background: repeating-linear-gradient(45deg, #121315, #121315 5px, #17191c 5px, #17191c 10px); }
@@ -329,7 +331,7 @@
     </div>
 
     <div class="panel cross">
-      <div class="panel-title">Все пары<span>W — победа, L — поражение, дата — матч назначен</span></div>
+      <div class="panel-title">Все пары<span>W — победа, L — поражение</span></div>
       <table id="crosstable"></table>
     </div>
   </div>
@@ -537,7 +539,7 @@ document.getElementById("matches").innerHTML =
 
 // все пары (шахматка)
 document.getElementById("crosstable").innerHTML =
-  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th>К${i + 1}</th>`).join("")}</tr></thead><tbody>` +
+  `<thead><tr><th></th>${TEAMS.map((_, i) => `<th class="ch" title="${esc(TEAMS[i].name)}">${esc(TEAMS[i].name)}</th>`).join("")}</tr></thead><tbody>` +
   TEAMS.map((t, i) => `<tr><td class="t">${esc(t.name)}</td>${TEAMS.map((_, j) => {
     if (i === j) return `<td class="self"></td>`;
     const r = h2h[i + "-" + j], key = pairKey(i, j);
