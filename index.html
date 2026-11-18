@@ -144,15 +144,15 @@
   .cross td.sch { color: var(--gold-2); font-size: 12px; }
 
   .mgroup { padding: 10px 16px 4px; font-family: var(--head); font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-  .mrow { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
+  .mrow { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
   .mgroup + .mrow { border-top: 0; }
   .mwhen { font-size: 13px; line-height: 1.25; color: var(--muted); }
   .mwhen b { display: block; color: var(--text); font-size: 15px; font-weight: 700; }
   .mrow.up .mwhen b { color: var(--gold-2); }
-  .mteams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; font-size: 15px; min-width: 0; }
+  .mteams { display: grid; grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 15px; min-width: 0; }
   .mteams .a { text-align: right; }
   .mteams span { overflow-wrap: anywhere; }
-  .mteams .vs { font-family: var(--head); color: var(--dim); font-size: 13px; text-transform: uppercase; }
+  .mteams .vs { font-family: var(--head); color: var(--dim); font-size: 13px; text-transform: uppercase; text-align: center; white-space: nowrap; }
   .mteams .w { color: var(--text); font-weight: 700; }
   .mteams .w::after { content: " ✓"; color: var(--radiant); }
   .mteams .a.w::after { content: ""; }
