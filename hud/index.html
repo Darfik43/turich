@@ -351,6 +351,7 @@ function render() {
   const pa = document.getElementById("pl-a"), pb = document.getElementById("pl-b");
   pa.style.setProperty("--tc", TEAMS[A].color); pa.innerHTML = plate(A, sa, "Radiant");
   pb.style.setProperty("--tc", TEAMS[B].color); pb.innerHTML = plate(B, sb, "Dire");
+  fitNames();
   document.getElementById("gm-fmt").innerHTML = `Группа<b>Bo1</b>`;
 
   // панель
@@ -362,6 +363,15 @@ function render() {
     `<option value="${x.key}" ${x.key === S.match ? "selected" : ""}>${esc(TEAMS[x.a].name)} – ${esc(TEAMS[x.b].name)}${x.time ? " · " + fmtTime(x.time) : ""}${x.win !== null ? " (сыгран)" : ""}</option>`).join("");
   tick();
 }
+// название на плашке уменьшается, пока не влезет целиком (от 26 до 16 px)
+function fitNames() {
+  document.querySelectorAll(".plate .nm").forEach(el => {
+    let size = 26; el.style.fontSize = size + "px";
+    const textW = () => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; };
+    while (textW() > el.clientWidth - 6 && size > 16) el.style.fontSize = --size + "px";  // запас 6px, чтобы в OBS точно влезло
+  });
+}
+document.fonts.ready.then(fitNames);
 function tick() {
   const t = S.time ? new Date(S.time + ":00+03:00") : current().time;
   const el = document.getElementById("st-cd"), lbl = document.getElementById("st-lbl");
