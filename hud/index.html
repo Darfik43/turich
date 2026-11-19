@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Турич — HUD для OBS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800&text=SG&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tektur:wght@500;600;700;800&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e10; --panel: #16181b; --panel-2: #1c1f23; --bar: #101113; --line: #2a2d32; --line-2: #383c42;
+    --text: #e6e1d8; --muted: #8a8f96; --dim: #5b6067;
+    --red: #c8392b; --red-2: #ef5a42; --radiant: #6fae3f; --gold: #c79c4a; --gold-2: #e8c06f;
+    --head: "Tektur", "Arial Narrow", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; color: var(--text); font: 22px/1.4 "PT Sans", sans-serif; }
+
+  /* сцена 1920×1080; в браузере для превью масштабируется под окно */
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+  body.preview { background: #050506; }
+  body.preview #stage { outline: 1px solid #333; }
+
+  .scene { position: absolute; inset: 0; display: none; }
+  .scene.on { display: block; }
+  .full-bg {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 40%, rgba(200,57,43,.20), transparent 70%),
+      linear-gradient(135deg, rgba(111,174,63,.08) 0%, transparent 40%, transparent 60%, rgba(200,57,43,.12) 100%),
+      var(--bg);
+  }
+  .grain::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .6;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* лого SG */
+  .sg { font-family: Unbounded, sans-serif; font-weight: 800; line-height: 1; letter-spacing: -.01em;
+        background: linear-gradient(135deg, #f8e3a3 0%, #d9b265 28%, #b08a3c 52%, #ecd08a 78%, #c29a4b 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 6px 18px rgba(0,0,0,.6)); }
+
+  .kicker { font-family: var(--head); text-transform: uppercase; letter-spacing: .14em; color: var(--red-2); font-size: 26px; }
+  .title  { font-family: var(--head); font-weight: 800; text-transform: uppercase; }
+
+  /* общий блок «команда vs команда» */
+  .versus { display: grid; grid-template-columns: 1fr 220px 1fr; align-items: center; }
+  .side { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .side .logo { width: 300px; height: 300px; display: grid; place-items: center; background: rgba(0,0,0,.35); border: 2px solid var(--line-2); border-top: 6px solid var(--tc); }
+  .side .logo img { max-width: 92%; max-height: 92%; object-fit: contain; }
+  .side .name { font-family: var(--head); font-weight: 700; font-size: 54px; line-height: 1.05; text-align: center; max-width: 620px; }
+  .mid { text-align: center; }
+  .mid .vs { font-family: var(--head); font-weight: 800; font-size: 72px; color: var(--dim); }
+  .mid .score { font-family: var(--head); font-weight: 800; font-size: 120px; line-height: 1; }
+  .mid .score .sep { color: var(--dim); margin: 0 10px; }
+  .mid .fmt { font-family: var(--head); font-size: 24px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; margin-top: 8px; }
+
+  /* бегущая строка */
+  .ticker { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; background: rgba(10,11,13,.92); border-top: 2px solid var(--red); display: flex; align-items: center; overflow: hidden; }
+  .ticker .tag { flex: none; height: 100%; display: flex; align-items: center; gap: 12px; padding: 0 26px; background: var(--red); font-family: var(--head); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 22px; }
+  .ticker .tag .sg { font-size: 30px; filter: none; background: none; color: #fff; -webkit-text-fill-color: #fff; }
+  .ticker .run { flex: 1; overflow: hidden; white-space: nowrap; mask-image: linear-gradient(90deg, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
+  .ticker .track { display: inline-block; padding-left: 100%; animation: run var(--dur, 60s) linear infinite; font-size: 24px; }
+  .ticker .track span { margin-right: 46px; }
+  .ticker .track b { font-family: var(--head); font-weight: 600; color: var(--gold-2); }
+  @keyframes run { to { transform: translateX(-100%); } }
+
+  /* ---- сцена «Скоро начнём» ---- */
+  #s-start .head { position: absolute; top: 70px; left: 60px; right: 600px; text-align: center; }
+  #s-start .head .sg { font-size: 120px; }
+  #s-start .head .kicker { margin-top: 18px; }
+  #s-start .versus { position: absolute; top: 330px; left: 60px; right: 600px; grid-template-columns: 1fr 180px 1fr; }
+  #s-start .side .logo { width: 260px; height: 260px; }
+  #s-start .side .name { font-size: 46px; max-width: 480px; }
+  /* компактная таблица группы — второстепенная, справа */
+  .mini-table { position: absolute; right: 70px; top: 250px; width: 470px; background: rgba(16,17,19,.72); border: 1px solid var(--line); opacity: .92; }
+  .mini-table .ph { padding: 12px 18px; font-family: var(--head); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 18px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .mini-table .r { display: grid; grid-template-columns: 6px 30px 34px 1fr 40px 44px; align-items: center; gap: 0 10px; height: 52px; padding-right: 16px; border-bottom: 1px solid rgba(42,45,50,.7); font-size: 21px; }
+  .mini-table .r:last-child { border-bottom: 0; }
+  .mini-table .r .z { height: 100%; }
+  .mini-table .r.ub .z { background: var(--radiant); } .mini-table .r.lb .z { background: var(--red); } .mini-table .r.out .z { background: #3a3d42; }
+  .mini-table .r .pos { color: var(--muted); text-align: center; }
+  .mini-table .r img { width: 32px; height: 32px; object-fit: contain; }
+  .mini-table .r .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini-table .r .gp { color: var(--muted); text-align: center; font-size: 18px; }
+  .mini-table .r .pt { font-family: var(--head); font-weight: 700; text-align: center; }
+  .mini-table .r.hl { background: rgba(232,192,111,.10); }
+  .mini-table .r.hl .nm { color: var(--gold-2); font-weight: 700; }
+  .mini-table .r.hd { height: 34px; color: var(--dim); font-family: var(--head); font-size: 14px; text-transform: uppercase; letter-spacing: .06em; }
+  #s-start .when { position: absolute; top: 800px; left: 60px; right: 600px; text-align: center; }
+  #s-start .when .lbl { font-family: var(--head); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-size: 24px; }
+  #s-start .when .cd { font-family: var(--head); font-weight: 800; font-size: 96px; line-height: 1.1; color: var(--gold-2); font-variant-numeric: tabular-nums; }
+
+  /* ---- сцена «Перерыв» ---- */
+  #s-break .left { position: absolute; left: 110px; top: 110px; width: 760px; }
+  #s-break .left .title { font-size: 92px; line-height: 1; margin: 14px 0 50px; }
+  #s-break .mini { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; background: rgba(0,0,0,.35); border: 1px solid var(--line-2); padding: 28px; }
+  #s-break .mini .t { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; font-family: var(--head); font-weight: 600; font-size: 30px; }
+  #s-break .mini img { width: 140px; height: 140px; object-fit: contain; }
+  #s-break .mini .sc { font-family: var(--head); font-weight: 800; font-size: 90px; }
+  #s-break .cam { margin-top: 36px; height: 300px; border: 2px dashed var(--line-2); display: grid; place-items: center; color: var(--dim); font-family: var(--head); font-size: 24px; text-transform: uppercase; letter-spacing: .1em; }
+  .standings { position: absolute; right: 110px; top: 110px; width: 860px; background: rgba(16,17,19,.9); border: 1px solid var(--line); }
+  .standings .ph { padding: 18px 26px; font-family: var(--head); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 26px; border-bottom: 1px solid var(--line); background: var(--bar); }
+  .standings table { width: 100%; border-collapse: collapse; }
+  .standings td, .standings th { padding: 13px 18px; border-bottom: 1px solid var(--line); text-align: center; font-size: 26px; }
+  .standings th { font-family: var(--head); font-weight: 500; font-size: 18px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .standings td.n { text-align: left; display: flex; align-items: center; gap: 14px; }
+  .standings td.n img { width: 40px; height: 40px; object-fit: contain; }
+  .standings td.z { width: 6px; padding: 0; }
+  .standings tr.ub td.z { background: var(--radiant); } .standings tr.lb td.z { background: var(--red); } .standings tr.out td.z { background: #3a3d42; }
+  .standings tr.out td { color: var(--muted); }
+  .standings tr:last-child td { border-bottom: 0; }
+  .standings td b { font-family: var(--head); font-size: 30px; }
+
+  /* ---- сцена «Итоги» ---- */
+  #s-end .win { position: absolute; left: 110px; top: 150px; width: 820px; text-align: center; }
+  #s-end .win .logo { width: 360px; height: 360px; margin: 30px auto; display: grid; place-items: center; background: rgba(0,0,0,.35); border: 2px solid var(--gold); box-shadow: 0 0 80px rgba(201,161,90,.25); }
+  #s-end .win .logo img { max-width: 92%; max-height: 92%; object-fit: contain; }
+  #s-end .win .name { font-family: var(--head); font-weight: 800; font-size: 72px; line-height: 1.05; }
+  #s-end .win .res { font-family: var(--head); font-size: 34px; color: var(--muted); margin-top: 16px; }
+  #s-end .win .res b { color: var(--gold-2); }
+
+  /* ---- оверлей поверх игры ---- */
+  .plate { position: absolute; top: 0; height: 64px; width: 420px; display: flex; align-items: center; gap: 14px; padding: 0 16px;
+           background: linear-gradient(180deg, rgba(14,15,17,.96), rgba(14,15,17,.86)); border-bottom: 3px solid var(--tc); }
+  .plate img { width: 48px; height: 48px; object-fit: contain; flex: none; }
+  .plate .nm { flex: 1; min-width: 0; font-family: var(--head); font-weight: 700; font-size: 26px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plate .sc { flex: none; width: 54px; height: 64px; display: grid; place-items: center; font-family: var(--head); font-weight: 800; font-size: 36px; background: rgba(255,255,255,.06); }
+  .plate .side-tag { position: absolute; bottom: -24px; font-family: var(--head); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; padding: 1px 8px; }
+  #pl-a { left: 120px; } #pl-a .side-tag { left: 0; background: var(--radiant); }
+  #pl-b { right: 120px; flex-direction: row-reverse; text-align: right; } #pl-b .side-tag { right: 0; background: var(--red); }
+  #pl-b .nm { text-align: right; }
+  .gamebug { position: absolute; left: 0; top: 0; width: 120px; height: 64px; display: grid; place-items: center; background: rgba(14,15,17,.96); border-bottom: 3px solid var(--gold); }
+  .gamebug .sg { font-size: 30px; filter: none; }
+  .gamebug-r { position: absolute; right: 0; top: 0; width: 120px; height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(14,15,17,.96); border-bottom: 3px solid var(--gold); font-family: var(--head); font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); line-height: 1.2; }
+  .gamebug-r b { color: var(--text); font-size: 18px; }
+
+  /* макет интерфейса Доты (только для превью) */
+  #dota-mock { position: absolute; inset: 0; display: none; pointer-events: none; background: linear-gradient(160deg, #2b3a24, #1f2a1b 45%, #2a1e1a); }
+  body.mock #dota-mock { display: block; }
+  #dota-mock div { position: absolute; border: 2px dashed rgba(255,255,255,.35); background: rgba(0,0,0,.35); color: rgba(255,255,255,.5); font: 600 18px sans-serif; display: grid; place-items: center; }
+
+  /* панель управления */
+  #ctl { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: 380px; max-height: calc(100vh - 32px); overflow: auto; background: #111316; border: 1px solid #333; color: #ddd; font: 14px/1.4 "PT Sans", sans-serif; padding: 12px; display: none; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+  #ctl.open { display: block; }
+  #ctl h4 { margin: 10px 0 6px; font: 600 12px var(--head); text-transform: uppercase; letter-spacing: .08em; color: #999; }
+  #ctl select, #ctl input { width: 100%; background: #1b1e22; color: #ddd; border: 1px solid #333; padding: 6px; font: inherit; }
+  #ctl .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  #ctl button { flex: 1; background: #22262b; color: #eee; border: 1px solid #3a3f45; padding: 7px 8px; cursor: pointer; font: 600 13px "PT Sans", sans-serif; }
+  #ctl button.on { background: var(--red); border-color: var(--red); }
+  #ctl .hint { color: #777; font-size: 12px; margin-top: 8px; }
+  #ctl-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 49; width: 42px; height: 42px; border-radius: 50%; border: 1px solid #333; background: rgba(17,19,22,.6); color: #aaa; font-size: 20px; cursor: pointer; opacity: 0; }
+  #ctl-toggle:hover { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="dota-mock">
+    <div style="left:560px;top:0;width:800px;height:72px">Верхняя панель Доты: герои и время</div>
+    <div style="left:0;bottom:0;width:300px;height:300px">Миникарта</div>
+    <div style="left:470px;bottom:0;width:980px;height:150px">Портрет, способности, предметы</div>
+    <div style="right:0;bottom:0;width:300px;height:160px">Магазин, курьер</div>
+  </div>
+
+  <!-- 1. Скоро начнём -->
+  <section class="scene full-bg grain" id="s-start">
+    <div class="head"><div class="sg">SG</div><div class="kicker" id="st-kicker">Турич · Групповой этап · Bo1</div></div>
+    <div class="versus" id="st-versus"></div>
+    <div class="mini-table" id="st-table"></div>
+    <div class="when"><div class="lbl" id="st-lbl">Начало через</div><div class="cd" id="st-cd">--:--</div></div>
+    <div class="ticker"><div class="tag"><span class="sg">SG</span>Турич</div><div class="run"><div class="track"></div></div></div>
+  </section>
+
+  <!-- 2. Перерыв -->
+  <section class="scene full-bg grain" id="s-break">
+    <div class="left">
+      <div class="kicker">Турич · Dota 2</div>
+      <div class="title">Перерыв</div>
+      <div class="mini" id="br-mini"></div>
+      <div class="cam" id="br-cam">Место под камеру</div>
+    </div>
+    <div class="standings" id="br-table"></div>
+    <div class="ticker"><div class="tag"><span class="sg">SG</span>Турич</div><div class="run"><div class="track"></div></div></div>
+  </section>
+
+  <!-- 3. Итоги -->
+  <section class="scene full-bg grain" id="s-end">
+    <div class="win" id="en-win"></div>
+    <div class="standings" id="en-table"></div>
+    <div class="ticker"><div class="tag"><span class="sg">SG</span>Турич</div><div class="run"><div class="track"></div></div></div>
+  </section>
+
+  <!-- 4. Поверх игры -->
+  <section class="scene" id="s-game">
+    <div class="gamebug"><span class="sg">SG</span></div>
+    <div class="plate" id="pl-a"></div>
+    <div class="plate" id="pl-b"></div>
+    <div class="gamebug-r" id="gm-fmt"></div>
+  </section>
+</div>
+
+<button id="ctl-toggle" title="Панель управления (клавиша C)">⚙</button>
+<div id="ctl">
+  <h4>Сцена</h4>
+  <div class="row" id="c-scenes">
+    <button data-s="start">Скоро начнём</button><button data-s="game">Поверх игры</button>
+    <button data-s="break">Перерыв</button><button data-s="end">Итоги</button>
+  </div>
+  <h4>Матч</h4>
+  <select id="c-match"></select>
+  <h4>Счёт серии</h4>
+  <div class="row">
+    <button id="c-a-minus">A −</button><button id="c-a-plus">A +</button>
+    <button id="c-b-minus">B −</button><button id="c-b-plus">B +</button>
+  </div>
+  <div class="row" style="margin-top:6px"><button id="c-swap">Поменять стороны</button><button id="c-reset">Сбросить счёт</button></div>
+  <h4>Начало матча (для отсчёта)</h4>
+  <input id="c-time" type="datetime-local">
+  <h4>Превью</h4>
+  <div class="row"><button id="c-mock">Макет интерфейса Доты</button><button id="c-cam">Место под камеру</button></div>
+  <div class="hint">В OBS: источник «Браузер», 1920×1080, панель открывается через «Взаимодействовать» → кнопка ⚙ или клавиша C. Настройки сохраняются.</div>
+</div>
+
+<script>
+/* ===== данные турнира (как на сайте) ===== */
+const TEAMS = [
+  { name: "Los Pinguinos", color: "#3375ff" }, { name: "BetBoomers", color: "#66ffbf" }, { name: "zaCALLo4cka", color: "#bf00bf" },
+  { name: "Team Feedality", color: "#f3f00b" }, { name: "Buyback$treet Boy$", color: "#ff6b00" }, { name: "Hilimsya-Jivem", color: "#fe86c2" },
+  { name: "Flush Royal", color: "#a1b447" },
+];
+const LOGO = i => `../logos/team-${i + 1}.webp`;
+const FORM_SHEET_ID = "15fmjKhgDK2mQ4zNPyErbSzchpkQN1JSJzEtRMKo7QO8";
+const N = TEAMS.length;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pairKey = (i, j) => Math.min(i, j) + "-" + Math.max(i, j);
+
+function parseCSV(text) {
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; } else if (c === '"') q = false; else cell += c; }
+    else if (c === '"') q = true; else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+function sheetDate(s) {
+  const m = String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (!m) return null; const p = n => String(n).padStart(2, "0");
+  return new Date(`${m[3]}-${p(m[1])}-${p(m[2])}T${p(m[4] || 0)}:${m[5] || "00"}:00+03:00`);
+}
+function gamesFromCSV(csv) {
+  const idx = name => TEAMS.findIndex(t => t.name === String(name).trim());
+  const byKey = new Map();
+  parseCSV(csv).slice(1).filter(r => r[0]).forEach(([ts, match, when, winner]) => {
+    const g = String(match).match(/^Группа · (.+) – (.+)$/); if (!g) return;
+    const a = idx(g[1]), b = idx(g[2]); if (a < 0 || b < 0 || a === b) return;
+    const key = pairKey(a, b), cur = byKey.get(key) || { a, b, key, time: null, win: null };
+    if (when) cur.time = sheetDate(when);
+    if (winner === "Отменить результат") cur.win = null;
+    else if (winner && winner !== "Ещё не сыгран") { const w = idx(winner); if (w === a || w === b) cur.win = w; }
+    byKey.set(key, cur);
+  });
+  return [...byKey.values()];
+}
+function standings(games) {
+  const st = TEAMS.map((t, i) => ({ i, p: 0, w: 0, l: 0 })), h2h = {};
+  games.forEach(g => { if (g.win === null) return; const l = g.win === g.a ? g.b : g.a;
+    st[g.win].p++; st[g.win].w++; st[l].p++; st[l].l++; h2h[g.win + "-" + l] = 1; });
+  return st.sort((x, y) => y.w - x.w || x.l - y.l || (h2h[x.i + "-" + y.i] ? -1 : h2h[y.i + "-" + x.i] ? 1 : 0) || x.i - y.i);
+}
+
+/* ===== состояние (хранится в браузере OBS) ===== */
+const KEY = "turich-hud";
+let S = { scene: "start", match: null, sa: 0, sb: 0, swap: false, time: "", mock: true, cam: true };
+try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+const params = new URLSearchParams(location.search);
+if (params.get("scene")) S.scene = params.get("scene");
+// параметры адреса (удобно, если в OBS по отдельному источнику на сцену): ?scene=end&match=1-2&sa=0&sb=1&swap=1
+if (params.get("match")) S.match = params.get("match");
+if (params.has("sa")) S.sa = +params.get("sa") || 0;
+if (params.has("sb")) S.sb = +params.get("sb") || 0;
+if (params.has("swap")) S.swap = params.get("swap") === "1";
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+let GAMES = [];
+
+/* ===== отрисовка ===== */
+const fmtTime = d => d ? d.toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" }) + " МСК" : "время уточняется";
+function current() {
+  const g = GAMES.find(x => x.key === S.match);
+  if (g) return g;
+  const now = Date.now();
+  const up = GAMES.filter(x => x.win === null).sort((x, y) => (x.time?.getTime() ?? 9e15) - (y.time?.getTime() ?? 9e15));
+  return up.find(x => !x.time || x.time.getTime() > now - 3 * 3600e3) || up[0] || GAMES[0] || { a: 0, b: 1, key: "0-1", time: null, win: null };
+}
+function sides() { const g = current(); return S.swap ? [g.b, g.a] : [g.a, g.b]; }
+function scores() { return S.swap ? [S.sb, S.sa] : [S.sa, S.sb]; }
+
+function tickerHTML() {
+  const st = standings(GAMES).map((s, n) => `<span>${n + 1}. ${esc(TEAMS[s.i].name)} <b>${s.w}</b></span>`).join("");
+  const up = GAMES.filter(g => g.win === null && g.time).sort((x, y) => x.time - y.time).slice(0, 4)
+    .map(g => `<span>${esc(TEAMS[g.a].name)} vs ${esc(TEAMS[g.b].name)} · <b>${fmtTime(g.time)}</b></span>`).join("");
+  const res = GAMES.filter(g => g.win !== null).slice(-4)
+    .map(g => `<span>${esc(TEAMS[g.a].name)} <b>${g.win === g.a ? "1 : 0" : "0 : 1"}</b> ${esc(TEAMS[g.b].name)}</span>`).join("");
+  return `<span><b>ТАБЛИЦА</b></span>${st}${up ? `<span><b>БЛИЖАЙШИЕ МАТЧИ</b></span>${up}` : ""}${res ? `<span><b>РЕЗУЛЬТАТЫ</b></span>${res}` : ""}`;
+}
+function tableHTML(title) {
+  const rows = standings(GAMES).map((s, n) => {
+    const z = n < 4 ? "ub" : n < 6 ? "lb" : "out";
+    return `<tr class="${z}"><td class="z"></td><td>${n + 1}</td><td class="n"><img src="${LOGO(s.i)}" alt="">${esc(TEAMS[s.i].name)}</td><td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td><b>${s.w}</b></td></tr>`;
+  }).join("");
+  return `<div class="ph">${title}</div><table><thead><tr><th></th><th>#</th><th style="text-align:left">Команда</th><th>И</th><th>В</th><th>П</th><th>Очки</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+function sideHTML(i) {
+  return `<div class="side" style="--tc:${TEAMS[i].color}"><div class="logo"><img src="${LOGO(i)}" alt=""></div><div class="name">${esc(TEAMS[i].name)}</div></div>`;
+}
+
+function render() {
+  const g = current(), [A, B] = sides(), [sa, sb] = scores();
+  document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.id === "s-" + S.scene));
+  document.body.classList.toggle("mock", S.scene === "game" && (params.get("mock") === "1" || (S.mock && document.body.classList.contains("preview"))));
+  document.querySelectorAll(".track").forEach(t => { t.innerHTML = tickerHTML(); t.style.setProperty("--dur", Math.max(40, t.textContent.length / 5) + "s"); });
+
+  // скоро начнём
+  document.getElementById("st-versus").innerHTML = sideHTML(A) + `<div class="mid"><div class="vs">VS</div><div class="fmt">Bo1</div></div>` + sideHTML(B);
+  // компактная таблица на «Скоро начнём»: команды текущего матча подсвечены
+  document.getElementById("st-table").innerHTML = `<div class="ph">Групповой этап</div>
+    <div class="r hd"><span></span><span>#</span><span></span><span>Команда</span><span>И</span><span>О</span></div>` +
+    standings(GAMES).map((s, n) => `<div class="r ${n < 4 ? "ub" : n < 6 ? "lb" : "out"} ${s.i === A || s.i === B ? "hl" : ""}">
+      <span class="z"></span><span class="pos">${n + 1}</span><img src="${LOGO(s.i)}" alt=""><span class="nm">${esc(TEAMS[s.i].name)}</span>
+      <span class="gp">${s.p}</span><span class="pt">${s.w}</span></div>`).join("");
+
+  // перерыв
+  document.getElementById("br-mini").innerHTML =
+    `<div class="t"><img src="${LOGO(A)}" alt="">${esc(TEAMS[A].name)}</div><div class="sc">${sa} : ${sb}</div><div class="t"><img src="${LOGO(B)}" alt="">${esc(TEAMS[B].name)}</div>`;
+  document.getElementById("br-cam").style.display = S.cam ? "" : "none";
+  document.getElementById("br-table").innerHTML = tableHTML("Групповой этап");
+
+  // итоги
+  const winner = g.win !== null ? g.win : sa > sb ? A : sb > sa ? B : null;
+  document.getElementById("en-win").innerHTML = winner === null
+    ? `<div class="kicker">Итоги матча</div><div class="name" style="margin-top:40px">${esc(TEAMS[A].name)} ${sa} : ${sb} ${esc(TEAMS[B].name)}</div>`
+    : `<div class="kicker">Победитель матча</div><div class="logo"><img src="${LOGO(winner)}" alt=""></div><div class="name">${esc(TEAMS[winner].name)}</div>
+       <div class="res">${esc(TEAMS[A].name)} <b>${winner === A ? Math.max(sa, 1) : sa} : ${winner === B ? Math.max(sb, 1) : sb}</b> ${esc(TEAMS[B].name)}</div>`;
+  document.getElementById("en-table").innerHTML = tableHTML("Таблица группы");
+
+  // поверх игры
+  const plate = (i, sc, side) => `<img src="${LOGO(i)}" alt=""><div class="nm">${esc(TEAMS[i].name)}</div><div class="sc">${sc}</div><div class="side-tag">${side}</div>`;
+  const pa = document.getElementById("pl-a"), pb = document.getElementById("pl-b");
+  pa.style.setProperty("--tc", TEAMS[A].color); pa.innerHTML = plate(A, sa, "Radiant");
+  pb.style.setProperty("--tc", TEAMS[B].color); pb.innerHTML = plate(B, sb, "Dire");
+  document.getElementById("gm-fmt").innerHTML = `Группа<b>Bo1</b>`;
+
+  // панель
+  document.querySelectorAll("#c-scenes button").forEach(b => b.classList.toggle("on", b.dataset.s === S.scene));
+  document.getElementById("c-mock").classList.toggle("on", S.mock);
+  document.getElementById("c-cam").classList.toggle("on", S.cam);
+  const sel = document.getElementById("c-match");
+  sel.innerHTML = `<option value="">Авто: ближайший назначенный</option>` + GAMES.map(x =>
+    `<option value="${x.key}" ${x.key === S.match ? "selected" : ""}>${esc(TEAMS[x.a].name)} – ${esc(TEAMS[x.b].name)}${x.time ? " · " + fmtTime(x.time) : ""}${x.win !== null ? " (сыгран)" : ""}</option>`).join("");
+  tick();
+}
+function tick() {
+  const t = S.time ? new Date(S.time + ":00+03:00") : current().time;
+  const el = document.getElementById("st-cd"), lbl = document.getElementById("st-lbl");
+  if (!t) { lbl.textContent = "Начало"; el.textContent = "скоро"; return; }
+  const ms = t.getTime() - Date.now();
+  if (ms <= 0) { lbl.textContent = fmtTime(t); el.textContent = "Скоро начнём"; return; }
+  const h = Math.floor(ms / 3600e3), m = Math.floor(ms % 3600e3 / 60e3), s = Math.floor(ms % 60e3 / 1e3), p = n => String(n).padStart(2, "0");
+  lbl.textContent = "Начало через"; el.textContent = (h ? h + ":" : "") + p(m) + ":" + p(s);
+}
+
+/* ===== масштаб для превью в браузере ===== */
+function fit() {
+  const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+  document.body.classList.toggle("preview", k < 0.999 || innerWidth !== 1920);
+  document.getElementById("stage").style.transform = k < 1 ? `scale(${k})` : "";
+  render();
+}
+addEventListener("resize", fit);
+
+/* ===== панель управления ===== */
+const ctl = document.getElementById("ctl");
+const set = patch => { Object.assign(S, patch); save(); render(); };
+document.getElementById("ctl-toggle").onclick = () => ctl.classList.toggle("open");
+addEventListener("keydown", e => { if (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "с") ctl.classList.toggle("open"); });
+document.querySelectorAll("#c-scenes button").forEach(b => b.onclick = () => set({ scene: b.dataset.s }));
+document.getElementById("c-match").onchange = e => set({ match: e.target.value || null, sa: 0, sb: 0, swap: false });
+const bump = (k, d) => () => set({ [k]: Math.max(0, S[k] + d) });
+// кнопки A/B относятся к командам так, как они стоят на экране
+document.getElementById("c-a-plus").onclick = () => S.swap ? bump("sb", 1)() : bump("sa", 1)();
+document.getElementById("c-a-minus").onclick = () => S.swap ? bump("sb", -1)() : bump("sa", -1)();
+document.getElementById("c-b-plus").onclick = () => S.swap ? bump("sa", 1)() : bump("sb", 1)();
+document.getElementById("c-b-minus").onclick = () => S.swap ? bump("sa", -1)() : bump("sb", -1)();
+document.getElementById("c-swap").onclick = () => set({ swap: !S.swap });
+document.getElementById("c-reset").onclick = () => set({ sa: 0, sb: 0 });
+document.getElementById("c-time").value = S.time;
+document.getElementById("c-time").onchange = e => set({ time: e.target.value });
+document.getElementById("c-mock").onclick = () => set({ mock: !S.mock });
+document.getElementById("c-cam").onclick = () => set({ cam: !S.cam });
+
+/* ===== запуск ===== */
+fit();
+setInterval(tick, 1000);
+async function load() {
+  try {
+    const csv = await (await fetch(`https://docs.google.com/spreadsheets/d/${FORM_SHEET_ID}/gviz/tq?tqx=out:csv&t=${Date.now()}`)).text();
+    if (/^"?Timestamp/i.test(csv.trim())) { GAMES = gamesFromCSV(csv); render(); }
+  } catch (e) { console.warn("HUD: ответы формы не загрузились", e); }
+}
+load(); setInterval(load, 60e3);
+</script>
+</body>
+</html>
