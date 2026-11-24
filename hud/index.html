@@ -140,6 +140,54 @@
   body.mock #dota-mock { display: block; }
   #dota-mock div { position: absolute; border: 2px dashed rgba(255,255,255,.35); background: rgba(0,0,0,.35); color: rgba(255,255,255,.5); font: 600 18px sans-serif; display: grid; place-items: center; }
 
+  /* ---- заставка между сценами ---- */
+  #trans { position: absolute; inset: 0; z-index: 40; pointer-events: none; display: none; overflow: hidden; }
+  #trans.run { display: block; }
+  #trans .p { position: absolute; top: -10%; bottom: -10%; width: 70%; background: linear-gradient(180deg, #17181c, #0b0c0e); }
+  #trans .p.l { left: -20%; border-right: 10px solid var(--red); transform: translateX(-120%) skewX(-12deg); }
+  #trans .p.r { right: -20%; border-left: 10px solid var(--gold); transform: translateX(120%) skewX(-12deg); }
+  #trans .logo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; opacity: 0; }
+  #trans .logo .sg { font-size: 240px; }
+  #trans .logo .kicker { font-size: 30px; }
+  #trans.run .p.l { animation: tr-l 1.4s cubic-bezier(.75,0,.25,1) both; }
+  #trans.run .p.r { animation: tr-r 1.4s cubic-bezier(.75,0,.25,1) both; }
+  #trans.run .logo { animation: tr-logo 1.4s ease both; }
+  @keyframes tr-l { 0% { transform: translateX(-120%) skewX(-12deg); } 32%, 68% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(-120%) skewX(-12deg); } }
+  @keyframes tr-r { 0% { transform: translateX(120%) skewX(-12deg); } 32%, 68% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(120%) skewX(-12deg); } }
+  @keyframes tr-logo { 0%, 26% { opacity: 0; transform: scale(.85); } 40%, 62% { opacity: 1; transform: scale(1); } 74%, 100% { opacity: 0; transform: scale(1.08); } }
+
+  /* ---- сцена «Статистика матча» ---- */
+  #s-stats .top { position: absolute; left: 110px; right: 110px; top: 50px; display: grid; grid-template-columns: 1fr 360px 1fr; align-items: center; }
+  #s-stats .tm { display: flex; align-items: center; gap: 24px; font-family: var(--head); font-weight: 700; font-size: 42px; line-height: 1.05; }
+  #s-stats .tm.r { flex-direction: row-reverse; text-align: right; }
+  #s-stats .tm img { width: 120px; height: 120px; object-fit: contain; flex: none; }
+  #s-stats .tm .tg { display: inline-block; margin-top: 10px; font-size: 16px; letter-spacing: .12em; text-transform: uppercase; padding: 2px 10px; }
+  #s-stats .tm .tg.rad { background: var(--radiant); } #s-stats .tm .tg.dire { background: var(--red); }
+  #s-stats .tm .tg.win { background: var(--gold); color: #111; margin: 10px 8px 0; }
+  #s-stats .mid { text-align: center; }
+  #s-stats .mid .kicker { font-size: 22px; }
+  #s-stats .mid .k { font-family: var(--head); font-weight: 800; font-size: 96px; line-height: 1.05; }
+  #s-stats .mid .k .sep { color: var(--dim); margin: 0 8px; }
+  #s-stats .mid .dur { font-family: var(--head); font-size: 22px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+  #s-stats .tbl { position: absolute; left: 110px; right: 110px; background: rgba(16,17,19,.88); border: 1px solid var(--line); }
+  #s-stats .tbl.t1 { top: 250px; } #s-stats .tbl.t2 { top: 636px; }
+  #s-stats .row { display: grid; grid-template-columns: 8px 100px 1fr 190px 130px 170px 140px 140px; align-items: center; gap: 0 18px; height: 60px; border-bottom: 1px solid rgba(42,45,50,.7); font-size: 26px; }
+  #s-stats .row:last-child { border-bottom: 0; }
+  #s-stats .row > span:not(.z):not(.pl) { text-align: center; font-variant-numeric: tabular-nums; }
+  #s-stats .row.hd { height: 38px; font-family: var(--head); font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; background: var(--bar); }
+  #s-stats .row .z { height: 100%; }
+  #s-stats .t1 .row .z { background: var(--radiant); } #s-stats .t2 .row .z { background: var(--red); }
+  #s-stats .row.hd .z { background: none !important; }
+  #s-stats .row img { width: 100px; height: 56px; object-fit: cover; display: block; }
+  #s-stats .row .pl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+  #s-stats .row .pl small { font-weight: 400; color: var(--muted); font-size: 18px; margin-left: 10px; }
+  #s-stats .row .mvp { display: inline-block; margin-left: 12px; padding: 0 8px; font: 700 15px var(--head); letter-spacing: .1em; background: var(--gold); color: #111; vertical-align: 4px; }
+  #s-stats .row .best { color: var(--gold-2); font-weight: 700; }
+  #s-stats .row .kda b { font-family: var(--head); }
+  #s-stats .msg { position: absolute; left: 200px; right: 200px; top: 420px; text-align: center; font-family: var(--head); font-size: 40px; color: var(--muted); }
+  #s-stats .msg small { display: block; margin-top: 18px; font: 26px/1.4 "PT Sans", sans-serif; color: var(--dim); }
+  #s-stats .src { position: absolute; left: 110px; right: 110px; bottom: 40px; text-align: right; font-size: 18px; color: var(--dim); }
+
   /* панель управления */
   #ctl { position: fixed; right: 16px; bottom: 16px; z-index: 50; width: 380px; max-height: calc(100vh - 32px); overflow: auto; background: #111316; border: 1px solid #333; color: #ddd; font: 14px/1.4 "PT Sans", sans-serif; padding: 12px; display: none; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
   #ctl.open { display: block; }
@@ -151,6 +199,23 @@
   #ctl .hint { color: #777; font-size: 12px; margin-top: 8px; }
   #ctl-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 49; width: 42px; height: 42px; border-radius: 50%; border: 1px solid #333; background: rgba(17,19,22,.6); color: #aaa; font-size: 20px; cursor: pointer; opacity: 0; }
   #ctl-toggle:hover { opacity: 1; }
+  #ctl .sc-row { display: grid; grid-template-columns: 1fr 48px 40px 48px; gap: 6px; align-items: center; margin-bottom: 6px; }
+  #ctl .sc-row .tn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+  #ctl .sc-row b { text-align: center; font: 800 22px var(--head); }
+  #ctl .sync-ok { color: #7cc95a; } #ctl .sync-bad { color: #ef5a42; }
+  #ctl a { color: var(--gold-2); }
+  #ctl .only-panel { display: none; }
+
+  /* режим «пульт»: превью слева, управление справа */
+  body.panel { background: #08090a; }
+  body.panel #ctl { display: block; top: 0; right: 0; bottom: 0; width: 460px; max-height: none; border: 0; border-left: 1px solid #2a2d32; box-shadow: none; padding: 16px 18px; font-size: 15px; }
+  body.panel #ctl button { padding: 12px 8px; font-size: 15px; }
+  body.panel #ctl .sc-row { grid-template-columns: 1fr 56px 44px 56px; }
+  body.panel #ctl .only-panel { display: block; }
+  body.panel #ctl-toggle { display: none; }
+  body.panel #stage { left: 16px; top: 16px; }
+  #panel-cap { display: none; }
+  body.panel #panel-cap { display: block; position: fixed; left: 16px; color: #777; font: 14px "PT Sans", sans-serif; }
 </style>
 </head>
 <body>
@@ -197,28 +262,41 @@
     <div class="plate" id="pl-b"></div>
     <div class="gamebug-r" id="gm-fmt"></div>
   </section>
+
+  <!-- 5. Статистика матча -->
+  <section class="scene full-bg grain" id="s-stats"></section>
+
+  <!-- 6. Пусто: HUD прозрачный, видна только игра (драфт) -->
+  <section class="scene" id="s-none"></section>
+
+  <!-- заставка между сценами -->
+  <div id="trans"><div class="p l"></div><div class="p r"></div><div class="logo"><div class="sg">SG</div><div class="kicker">Турич · Dota 2</div></div></div>
 </div>
+<div id="panel-cap"></div>
 
 <button id="ctl-toggle" title="Панель управления (клавиша C)">⚙</button>
 <div id="ctl">
   <h4>Сцена</h4>
   <div class="row" id="c-scenes">
     <button data-s="start">Скоро начнём</button><button data-s="game">Поверх игры</button>
-    <button data-s="break">Перерыв</button><button data-s="end">Итоги</button>
+    <button data-s="break">Перерыв</button><button data-s="end">Итоги</button><button data-s="stats">Статистика</button><button data-s="none">Пусто (драфт)</button>
   </div>
   <h4>Матч</h4>
   <select id="c-match"></select>
-  <h4>Счёт серии</h4>
-  <div class="row">
-    <button id="c-a-minus">A −</button><button id="c-a-plus">A +</button>
-    <button id="c-b-minus">B −</button><button id="c-b-plus">B +</button>
-  </div>
-  <div class="row" style="margin-top:6px"><button id="c-swap">Поменять стороны</button><button id="c-reset">Сбросить счёт</button></div>
+  <h4>Счёт серии (слева → справа, как на экране)</h4>
+  <div class="sc-row"><span class="tn" id="c-a-name">A</span><button id="c-a-minus">−</button><b id="c-a-val">0</b><button id="c-a-plus">+</button></div>
+  <div class="sc-row"><span class="tn" id="c-b-name">B</span><button id="c-b-minus">−</button><b id="c-b-val">0</b><button id="c-b-plus">+</button></div>
+  <div class="row"><button id="c-swap">Поменять стороны</button><button id="c-reset">Сбросить счёт</button></div>
   <h4>Начало матча (для отсчёта)</h4>
   <input id="c-time" type="datetime-local">
-  <h4>Превью</h4>
-  <div class="row"><button id="c-mock">Макет интерфейса Доты</button><button id="c-cam">Место под камеру</button></div>
-  <div class="hint">В OBS: источник «Браузер», 1920×1080, панель открывается через «Взаимодействовать» → кнопка ⚙ или клавиша C. Настройки сохраняются.</div>
+  <h4>Статистика матча (OpenDota)</h4>
+  <div class="row"><input id="c-mid" placeholder="ID матча" inputmode="numeric" style="flex:2;width:auto"><button id="c-mid-go">Показать</button></div>
+  <div class="hint" id="c-mid-st">ID матча есть в клиенте Доты: Профиль → Последние матчи.</div>
+  <h4>Оформление</h4>
+  <div class="row"><button id="c-trans">Заставка при смене сцен</button></div>
+  <div class="row" style="margin-top:6px"><button id="c-mock">Макет интерфейса Доты</button><button id="c-cam">Место под камеру</button></div>
+  <h4>Пульт на втором мониторе</h4>
+  <div class="hint" id="c-sync" style="margin-top:0"></div>
 </div>
 
 <script>
@@ -274,9 +352,65 @@ function standings(games) {
 
 /* ===== состояние (хранится в браузере OBS) ===== */
 const KEY = "turich-hud";
-let S = { scene: "start", match: null, sa: 0, sb: 0, swap: false, time: "", mock: true, cam: true };
+let S = { scene: "start", match: null, sa: 0, sb: 0, swap: false, time: "", mock: true, cam: true, trans: true, mid: "", v: 0 };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
 const params = new URLSearchParams(location.search);
+const IS_PANEL = params.get("panel") === "1";
+
+/* ===== пульт: состояние передаётся через ntfy.sh (бесплатный канал, без своего сервера) =====
+   OBS открывает hud/?room=КОД, пульт — hud/?panel=1&room=КОД. Код комнаты случайный. */
+let ROOM = (params.get("room") || "").replace(/[^a-z0-9]/gi, "");
+if (IS_PANEL && !ROOM) {
+  try { ROOM = localStorage.getItem("turich-room") || ""; } catch (e) {}
+  if (!ROOM) ROOM = Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8);
+  history.replaceState(null, "", `?panel=1&room=${ROOM}`);
+}
+if (IS_PANEL) try { localStorage.setItem("turich-room", ROOM); } catch (e) {}
+const TOPIC = ROOM ? "https://ntfy.sh/turich-hud-" + ROOM : null;
+const SYNC = { ok: false, err: "" };
+let pubTimer = null;
+function publish() {
+  if (!TOPIC) return;
+  clearTimeout(pubTimer);
+  // короткая задержка: несколько быстрых нажатий уходят одним сообщением
+  pubTimer = setTimeout(() => fetch(TOPIC, { method: "POST", body: JSON.stringify(S) })
+    .then(r => { SYNC.err = r.ok ? "" : r.status === 429 ? "превышен лимит сообщений ntfy" : "ошибка " + r.status; renderSync(); })
+    .catch(() => { SYNC.err = "нет связи с ntfy.sh"; renderSync(); }), 250);
+}
+function applyRemote(txt) {
+  let st; try { st = JSON.parse(txt); } catch (e) { return; }
+  if (!st || typeof st !== "object" || (st.v || 0) <= (S.v || 0)) return;
+  Object.assign(S, st); save(); render();
+  const t = document.getElementById("c-time"); if (t) t.value = S.time || "";
+}
+async function subscribe() {
+  if (!TOPIC) return;
+  try {
+    const t = await (await fetch(TOPIC + "/json?poll=1&since=latest")).text();
+    const last = t.trim().split("\n").filter(Boolean).pop();
+    if (last) applyRemote(JSON.parse(last).message);
+  } catch (e) {}
+  const es = new EventSource(TOPIC + "/sse");
+  es.onopen = () => { SYNC.ok = true; renderSync(); };
+  es.onerror = () => { SYNC.ok = false; renderSync(); };
+  es.onmessage = e => { try { const m = JSON.parse(e.data); if (m.event === "message") applyRemote(m.message); } catch (_) {} };
+}
+function renderSync() {
+  const el = document.getElementById("c-sync"); if (!el) return;
+  const base = location.origin + location.pathname;
+  if (!ROOM) {
+    el.innerHTML = `Пульт выключен. Открой на втором мониторе <a href="${base}?panel=1" target="_blank">пульт</a> и вставь в OBS ссылку, которую он покажет.`;
+    return;
+  }
+  const st = SYNC.err ? `<span class="sync-bad">● ${SYNC.err}</span>` : SYNC.ok ? `<span class="sync-ok">● на связи</span>` : `<span class="sync-bad">● подключаемся…</span>`;
+  el.innerHTML = `${st} · комната <b>${ROOM}</b>` + (IS_PANEL
+    ? `<div style="margin-top:8px">Ссылка для источника «Браузер» в OBS:</div>
+       <div class="row" style="margin-top:4px"><input id="c-obs" readonly value="${base}?room=${ROOM}" style="flex:3;width:auto"><button id="c-copy">Копировать</button></div>
+       <div style="margin-top:6px">Всё, что нажимаешь здесь, через секунду появляется в OBS.</div>`
+    : `<div style="margin-top:6px">Этот экран слушает пульт: <a href="${base}?panel=1&room=${ROOM}" target="_blank">открыть пульт</a></div>`);
+  const cp = document.getElementById("c-copy");
+  if (cp) cp.onclick = () => { const i = document.getElementById("c-obs"); i.select(); navigator.clipboard?.writeText(i.value).catch(() => document.execCommand("copy")); cp.textContent = "Скопировано"; setTimeout(() => cp.textContent = "Копировать", 1500); };
+}
 if (params.get("scene")) S.scene = params.get("scene");
 // параметры адреса (удобно, если в OBS по отдельному источнику на сцену): ?scene=end&match=1-2&sa=0&sb=1&swap=1
 if (params.get("match")) S.match = params.get("match");
@@ -319,8 +453,7 @@ function sideHTML(i) {
 
 function render() {
   const g = current(), [A, B] = sides(), [sa, sb] = scores();
-  document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.id === "s-" + S.scene));
-  document.body.classList.toggle("mock", S.scene === "game" && (params.get("mock") === "1" || (S.mock && document.body.classList.contains("preview"))));
+  showScene();
   document.querySelectorAll(".track").forEach(t => { t.innerHTML = tickerHTML(); t.style.setProperty("--dur", Math.max(40, t.textContent.length / 5) + "s"); });
 
   // скоро начнём
@@ -354,15 +487,111 @@ function render() {
   fitNames();
   document.getElementById("gm-fmt").innerHTML = `Группа<b>Bo1</b>`;
 
+  renderStats();
+
   // панель
   document.querySelectorAll("#c-scenes button").forEach(b => b.classList.toggle("on", b.dataset.s === S.scene));
   document.getElementById("c-mock").classList.toggle("on", S.mock);
   document.getElementById("c-cam").classList.toggle("on", S.cam);
+  document.getElementById("c-trans").classList.toggle("on", S.trans);
+  document.getElementById("c-a-name").textContent = TEAMS[A].name; document.getElementById("c-a-val").textContent = sa;
+  document.getElementById("c-b-name").textContent = TEAMS[B].name; document.getElementById("c-b-val").textContent = sb;
+  const mi = document.getElementById("c-mid"); if (document.activeElement !== mi) mi.value = S.mid || "";
+  document.getElementById("c-mid-st").textContent = !S.mid ? "ID матча есть в клиенте Доты: Профиль → Последние матчи."
+    : STATS.id === S.mid && STATS.data ? "Статистика загружена." : STATS.status || "Загружаем…";
   const sel = document.getElementById("c-match");
   sel.innerHTML = `<option value="">Авто: ближайший назначенный</option>` + GAMES.map(x =>
     `<option value="${x.key}" ${x.key === S.match ? "selected" : ""}>${esc(TEAMS[x.a].name)} – ${esc(TEAMS[x.b].name)}${x.time ? " · " + fmtTime(x.time) : ""}${x.win !== null ? " (сыгран)" : ""}</option>`).join("");
   tick();
 }
+/* ===== смена сцен с заставкой ===== */
+let shown = null, transRunning = false;
+function applyScene() {
+  document.querySelectorAll(".scene").forEach(s => s.classList.toggle("on", s.id === "s-" + shown));
+  document.body.classList.toggle("mock", shown === "game" && (params.get("mock") === "1" || (S.mock && document.body.classList.contains("preview"))));
+  fitNames();
+}
+function showScene() {
+  if (transRunning) return;                       // сцена подменится в середине заставки
+  if (shown === S.scene || shown === null || !S.trans) { shown = S.scene; applyScene(); return; }
+  const tr = document.getElementById("trans");
+  transRunning = true; tr.classList.remove("run"); void tr.offsetWidth; tr.classList.add("run");
+  setTimeout(() => { shown = S.scene; applyScene(); }, 700);   // экран закрыт шторками
+  setTimeout(() => { tr.classList.remove("run"); transRunning = false; if (shown !== S.scene) showScene(); }, 1450);
+}
+
+/* ===== статистика матча из OpenDota ===== */
+// Steam friend ID → [команда, ник на турнире]; у кого ID нет, берётся ник из Steam
+const ACC = {
+  143975807: [0, "путеводитель по губам"], 377441224: [0, "Tttttttttttttttttttttttttttttttttt"], 344293359: [0, "tony_crosss"], 106589724: [0, "Vozduh Khan"], 1584250791: [0, "vedeep"],
+  1244527848: [1, "SWAGΛMINΛTOR"], 123313650: [1, "Wouk"], 232530241: [1, "Играю Голым"], 135094151: [1, "Darkanus"],
+  122435401: [2, "Ditya Ra"], 114318835: [2, "TheEnd"], 76321355: [2, "Филейный Кусь"], 104852817: [2, "Шаманчик связывай"], 1047180876: [2, "воронежский рыгуль"],
+  108747798: [3, "Darfik"], 159144406: [3, "YOUtopia"], 20383802: [3, "Evisot"], 900486473: [3, "Кирилл"], 87604374: [3, "⊹₊фNд3р_оТ_б0г@₊⊹"],
+  246855896: [4, "AlphaOmega"], 226232550: [4, "YungMacan2016"], 118030126: [4, "P'er Dun"], 297531129: [4, "detached"],
+  140093040: [5, "Самость"], 347593735: [5, "shojurue"], 149483575: [5, "undead"], 86430904: [5, "Phoenix"], 87595309: [5, "Solayter"],
+  128583550: [6, "AlphaNipple"], 214278746: [6, "GUSTAVO"], 114594706: [6, "Failer The Great"], 91612162: [6, "lx4"],
+};
+const OD = "https://api.opendota.com/api";
+let HEROES = null, STATS = { id: null, data: null, status: "", requested: false };
+fetch(OD + "/constants/heroes").then(r => r.json()).then(h => { HEROES = h; renderStats(); }).catch(() => {});
+async function loadStats() {
+  const id = String(S.mid || "").replace(/\D/g, ""); if (!id) return;
+  if (STATS.id !== id) STATS = { id, data: null, status: "Загружаем статистику…", requested: false };
+  if (STATS.data || loadStats.busy) return;
+  loadStats.busy = true;
+  try {
+    const r = await fetch(`${OD}/matches/${id}`);
+    if (r.ok) { const d = await r.json(); if (STATS.id === id && d.players?.length === 10 && d.players[0].hero_id) { STATS.data = d; STATS.status = ""; } }
+  } catch (e) {}
+  if (STATS.id === id && !STATS.data) {
+    STATS.status = "OpenDota ещё не знает этот матч. Запросили разбор: обычно 1–5 минут, обновится само.";
+    if (!STATS.requested) { STATS.requested = true; fetch(`${OD}/request/${id}`, { method: "POST" }).catch(() => {}); }
+  }
+  loadStats.busy = false;
+  render();
+}
+setInterval(() => { if (S.mid && !(STATS.id === String(S.mid) && STATS.data)) loadStats(); }, 20e3);
+function renderStats() {
+  const el = document.getElementById("s-stats");
+  const id = String(S.mid || "").replace(/\D/g, "");
+  if (!id) { el.innerHTML = `<div class="msg">Статистика матча<small>Введи ID матча в пульте</small></div>`; return; }
+  if (STATS.id !== id) { loadStats(); }
+  const d = STATS.id === id ? STATS.data : null;
+  if (!d) { el.innerHTML = `<div class="msg">Матч ${id}<small>${esc(STATS.status || "Загружаем статистику…")}</small></div>`; return; }
+  if (el.dataset.key === id + "|" + !!HEROES + "|" + S.swap + "|" + S.match) return;   // уже нарисовано
+  el.dataset.key = id + "|" + !!HEROES + "|" + S.swap + "|" + S.match;
+
+  const rad = d.players.filter(p => p.player_slot < 128), dire = d.players.filter(p => p.player_slot >= 128);
+  // команда стороны — по большинству известных игроков; иначе как на плашках (слева Radiant)
+  const teamOf = list => { const c = {}; list.forEach(p => { const a = ACC[p.account_id]; if (a) c[a[0]] = (c[a[0]] || 0) + 1; });
+    const b = Object.entries(c).sort((x, y) => y[1] - x[1])[0]; return b ? +b[0] : null; };
+  const [A, B] = sides(); let tR = teamOf(rad), tD = teamOf(dire);
+  if (tR === null && tD === null) { tR = A; tD = B; } else if (tR === null) tR = tD === A ? B : A; else if (tD === null || tD === tR) tD = tR === A ? B : A;
+
+  const all = d.players, kda = p => (p.kills + p.assists) / Math.max(1, p.deaths);
+  const max = f => Math.max(...all.map(f));
+  const best = { nw: max(p => p.net_worth || 0), gpm: max(p => p.gold_per_min || 0), lh: max(p => p.last_hits || 0), dmg: max(p => p.hero_damage || 0), kda: max(kda) };
+  const winners = d.radiant_win ? rad : dire, mvp = winners.slice().sort((x, y) => kda(y) - kda(x) || (y.hero_damage || 0) - (x.hero_damage || 0))[0];
+  const k = n => n >= 1000 ? (n / 1000).toFixed(1).replace(".0", "") + "k" : String(n || 0);
+  const B_ = (v, m) => v === m && m > 0 ? ' class="best"' : "";
+  const hero = p => HEROES?.[p.hero_id] ? `<img src="https://cdn.cloudflare.steamstatic.com${HEROES[p.hero_id].img}" alt="">` : `<span></span>`;
+  const row = p => { const a = ACC[p.account_id], nick = a ? a[1] : (p.personaname || "Игрок");
+    const hn = HEROES?.[p.hero_id]?.localized_name || "";
+    return `<div class="row"><span class="z"></span>${hero(p)}<span class="pl">${esc(nick)}<small>${esc(hn)}</small>${p === mvp ? '<span class="mvp">MVP</span>' : ""}</span>
+      <span class="kda${kda(p) === best.kda ? " best" : ""}"><b>${p.kills}</b> / ${p.deaths} / ${p.assists}</span><span${B_(p.net_worth, best.nw)}>${k(p.net_worth)}</span>
+      <span${B_(p.gold_per_min, best.gpm)}>${p.gold_per_min} / ${p.xp_per_min}</span><span${B_(p.last_hits, best.lh)}>${p.last_hits} / ${p.denies}</span><span${B_(p.hero_damage, best.dmg)}>${k(p.hero_damage)}</span></div>`; };
+  const head = `<div class="row hd"><span class="z"></span><span>Герой</span><span class="pl">Игрок</span><span>У / С / П</span><span>Нетворс</span><span>GPM / XPM</span><span>Добито</span><span>Урон</span></div>`;
+  const dur = `${Math.floor(d.duration / 60)}:${String(d.duration % 60).padStart(2, "0")}`;
+  const tm = (t, side, win, r) => `<div class="tm${r ? " r" : ""}"><img src="${LOGO(t)}" alt=""><div>${esc(TEAMS[t].name)}<br>
+    <span class="tg ${side === "Radiant" ? "rad" : "dire"}">${side}</span>${win ? '<span class="tg win">Победа</span>' : ""}</div></div>`;
+  el.innerHTML = `<div class="top">${tm(tR, "Radiant", d.radiant_win, false)}
+      <div class="mid"><div class="kicker">Итоги игры</div><div class="k">${d.radiant_score}<span class="sep">:</span>${d.dire_score}</div><div class="dur">убийства · ${dur}</div></div>
+      ${tm(tD, "Dire", !d.radiant_win, true)}</div>
+    <div class="tbl t1">${head}${rad.map(row).join("")}</div>
+    <div class="tbl t2">${head}${dire.map(row).join("")}</div>
+    <div class="src">Данные OpenDota · матч ${id}</div>`;
+}
+
 // название на плашке уменьшается, пока не влезет целиком (от 26 до 16 px)
 function fitNames() {
   document.querySelectorAll(".plate .nm").forEach(el => {
@@ -384,18 +613,27 @@ function tick() {
 
 /* ===== масштаб для превью в браузере ===== */
 function fit() {
-  const k = Math.min(innerWidth / 1920, innerHeight / 1080);
-  document.body.classList.toggle("preview", k < 0.999 || innerWidth !== 1920);
+  document.body.classList.toggle("panel", IS_PANEL);
+  const w = IS_PANEL ? innerWidth - 460 - 32 : innerWidth, h = IS_PANEL ? innerHeight - 70 : innerHeight;
+  const k = Math.min(w / 1920, h / 1080);
+  document.body.classList.toggle("preview", IS_PANEL || k < 0.999 || innerWidth !== 1920);
   document.getElementById("stage").style.transform = k < 1 ? `scale(${k})` : "";
+  const cap = document.getElementById("panel-cap");
+  cap.style.top = (16 + 1080 * Math.min(k, 1) + 10) + "px";
+  cap.textContent = "Превью: так сейчас выглядит HUD в OBS (макет Доты виден только здесь)";
   render();
 }
 addEventListener("resize", fit);
 
 /* ===== панель управления ===== */
 const ctl = document.getElementById("ctl");
-const set = patch => { Object.assign(S, patch); save(); render(); };
+const set = patch => { Object.assign(S, patch, { v: Date.now() }); save(); render(); publish(); };
 document.getElementById("ctl-toggle").onclick = () => ctl.classList.toggle("open");
-addEventListener("keydown", e => { if (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "с") ctl.classList.toggle("open"); });
+addEventListener("keydown", e => { if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "с") ctl.classList.toggle("open"); });
+const goStats = () => { const v = document.getElementById("c-mid").value.replace(/\D/g, ""); if (v) set({ mid: v, scene: "stats" }); };
+document.getElementById("c-mid-go").onclick = goStats;
+document.getElementById("c-mid").onkeydown = e => { if (e.key === "Enter") goStats(); };
+document.getElementById("c-trans").onclick = () => set({ trans: !S.trans });
 document.querySelectorAll("#c-scenes button").forEach(b => b.onclick = () => set({ scene: b.dataset.s }));
 document.getElementById("c-match").onchange = e => set({ match: e.target.value || null, sa: 0, sb: 0, swap: false });
 const bump = (k, d) => () => set({ [k]: Math.max(0, S[k] + d) });
@@ -412,7 +650,9 @@ document.getElementById("c-mock").onclick = () => set({ mock: !S.mock });
 document.getElementById("c-cam").onclick = () => set({ cam: !S.cam });
 
 /* ===== запуск ===== */
+if (IS_PANEL) document.title = "Турич — пульт HUD";
 fit();
+renderSync(); subscribe();
 setInterval(tick, 1000);
 async function load() {
   try {
