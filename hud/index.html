@@ -171,7 +171,7 @@
   #s-stats .mid .dur { font-family: var(--head); font-size: 22px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
   #s-stats .tbl { position: absolute; left: 110px; right: 110px; background: rgba(16,17,19,.88); border: 1px solid var(--line); }
   #s-stats .tbl.t1 { top: 250px; } #s-stats .tbl.t2 { top: 636px; }
-  #s-stats .row { display: grid; grid-template-columns: 8px 100px 1fr 190px 130px 170px 140px 140px; align-items: center; gap: 0 18px; height: 60px; border-bottom: 1px solid rgba(42,45,50,.7); font-size: 26px; }
+  #s-stats .row { display: grid; grid-template-columns: 8px 100px 1fr 60px 170px 120px 130px 110px 372px; align-items: center; gap: 0 16px; height: 60px; border-bottom: 1px solid rgba(42,45,50,.7); font-size: 26px; }
   #s-stats .row:last-child { border-bottom: 0; }
   #s-stats .row > span:not(.z):not(.pl) { text-align: center; font-variant-numeric: tabular-nums; }
   #s-stats .row.hd { height: 38px; font-family: var(--head); font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; background: var(--bar); }
@@ -181,9 +181,11 @@
   #s-stats .row img { width: 100px; height: 56px; object-fit: cover; display: block; }
   #s-stats .row .pl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
   #s-stats .row .pl small { font-weight: 400; color: var(--muted); font-size: 18px; margin-left: 10px; }
-  #s-stats .row .mvp { display: inline-block; margin-left: 12px; padding: 0 8px; font: 700 15px var(--head); letter-spacing: .1em; background: var(--gold); color: #111; vertical-align: 4px; }
+  #s-stats .row .it { display: flex; align-items: center; gap: 4px; text-align: left !important; }
+  #s-stats .row .it img, #s-stats .row .it i { width: 50px; height: 37px; object-fit: cover; display: block; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.06); }
+  #s-stats .row .it .nt { margin-left: 6px; }
+  #s-stats .row .it .nt img { width: 37px; height: 37px; border-radius: 50%; object-fit: cover; }
   #s-stats .row .best { color: var(--gold-2); font-weight: 700; }
-  #s-stats .row .kda b { font-family: var(--head); }
   #s-stats .msg { position: absolute; left: 200px; right: 200px; top: 420px; text-align: center; font-family: var(--head); font-size: 40px; color: var(--muted); }
   #s-stats .msg small { display: block; margin-top: 18px; font: 26px/1.4 "PT Sans", sans-serif; color: var(--dim); }
   #s-stats .src { position: absolute; left: 110px; right: 110px; bottom: 40px; text-align: right; font-size: 18px; color: var(--dim); }
@@ -289,9 +291,11 @@
   <div class="row"><button id="c-swap">Поменять стороны</button><button id="c-reset">Сбросить счёт</button></div>
   <h4>Начало матча (для отсчёта)</h4>
   <input id="c-time" type="datetime-local">
-  <h4>Статистика матча (OpenDota)</h4>
-  <div class="row"><input id="c-mid" placeholder="ID матча" inputmode="numeric" style="flex:2;width:auto"><button id="c-mid-go">Показать</button></div>
-  <div class="hint" id="c-mid-st">ID матча есть в клиенте Доты: Профиль → Последние матчи.</div>
+  <h4>Статистика матча</h4>
+  <div class="row"><button id="c-gsi">Из игры (GSI)</button></div>
+  <div class="hint" id="c-gsi-st" style="margin:4px 0 8px">Проверяем сервер HUD…</div>
+  <div class="row"><input id="c-mid" placeholder="или ID матча для OpenDota" inputmode="numeric" style="flex:2;width:auto"><button id="c-mid-go">OpenDota</button></div>
+  <div class="hint" id="c-mid-st"></div>
   <h4>Оформление</h4>
   <div class="row"><button id="c-trans">Заставка при смене сцен</button></div>
   <div class="row" style="margin-top:6px"><button id="c-mock">Макет интерфейса Доты</button><button id="c-cam">Место под камеру</button></div>
@@ -497,8 +501,15 @@ function render() {
   document.getElementById("c-a-name").textContent = TEAMS[A].name; document.getElementById("c-a-val").textContent = sa;
   document.getElementById("c-b-name").textContent = TEAMS[B].name; document.getElementById("c-b-val").textContent = sb;
   const mi = document.getElementById("c-mid"); if (document.activeElement !== mi) mi.value = S.mid || "";
-  document.getElementById("c-mid-st").textContent = !S.mid ? "ID матча есть в клиенте Доты: Профиль → Последние матчи."
+  const od = S.src === "od";
+  document.getElementById("c-gsi").classList.toggle("on", !od && S.scene === "stats");
+  document.getElementById("c-mid-go").classList.toggle("on", od && S.scene === "stats");
+  document.getElementById("c-mid-st").textContent = !od || !S.mid ? "Запасной вариант: обычные лобби OpenDota сейчас не отдаёт."
     : STATS.id === S.mid && STATS.data ? "Статистика загружена." : STATS.status || "Загружаем…";
+  const gd = GSI.data, mm = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  document.getElementById("c-gsi-st").innerHTML = !GSI.ok ? '<span class="sync-bad">● сервер HUD не запущен</span> — запусти stream/start-hud.bat'
+    : !gd ? '<span class="sync-bad">● сервер запущен, данных из Доты пока нет</span>'
+    : `<span class="sync-ok">● данные из игры</span> · матч ${gd.match_id || "?"} · ${mm(gd.duration)} · ${gd.radiant_score}:${gd.dire_score}${gd.radiant_win === null ? "" : " · игра окончена"}${GSI.age > 30 ? ` · обновлено ${GSI.age} с назад` : ""}`;
   const sel = document.getElementById("c-match");
   sel.innerHTML = `<option value="">Авто: ближайший назначенный</option>` + GAMES.map(x =>
     `<option value="${x.key}" ${x.key === S.match ? "selected" : ""}>${esc(TEAMS[x.a].name)} – ${esc(TEAMS[x.b].name)}${x.time ? " · " + fmtTime(x.time) : ""}${x.win !== null ? " (сыгран)" : ""}</option>`).join("");
@@ -550,16 +561,52 @@ async function loadStats() {
   loadStats.busy = false;
   render();
 }
-setInterval(() => { if (S.mid && !(STATS.id === String(S.mid) && STATS.data)) loadStats(); }, 20e3);
+setInterval(() => { if (S.src === "od" && S.mid && !(STATS.id === String(S.mid) && STATS.data)) loadStats(); }, 20e3);
+/* ===== GSI: данные прямо из клиента Доты через локальный сервер (stream/start-hud.bat) ===== */
+const LOCAL = location.port === "8766";
+const GSI_URL = LOCAL ? "/gsi/state" : "http://localhost:8766/gsi/state";
+let GSI = { ok: false, age: -1, data: null };
+async function loadGSI() {
+  try {
+    const j = await (await fetch(GSI_URL, { cache: "no-store" })).json();
+    GSI = { ok: true, age: j.age, data: j.data && j.data.player ? fromGSI(j.data) : null };
+  } catch (e) { GSI = { ok: false, age: -1, data: null }; }
+  if (S.scene === "stats" || IS_PANEL) render();
+}
+// снимок GSI → тот же вид, что у OpenDota
+function fromGSI(g) {
+  const players = [], m = g.map || {};
+  const acc = p => { if (+p.accountid) return +p.accountid; try { return p.steamid ? Number(BigInt(p.steamid) - 76561197960265728n) : null; } catch (e) { return null; } };
+  ["team2", "team3"].forEach((t, ti) => {
+    const P = (g.player || {})[t] || {}, H = (g.hero || {})[t] || {}, I = (g.items || {})[t] || {};
+    Object.keys(P).sort((a, b) => a.replace(/\D/g, "") - b.replace(/\D/g, "")).forEach((k, n) => {
+      const p = P[k] || {}, h = H[k] || {}, it = I[k] || {};
+      const nm = s => it[s] && it[s].name && it[s].name !== "empty" ? it[s].name.replace(/^item_/, "") : null;
+      players.push({ player_slot: ti ? 128 + n : n, account_id: acc(p), personaname: p.name, hero_id: h.id, level: h.level ?? null,
+        items: [0, 1, 2, 3, 4, 5].map(i => nm("slot" + i)), neutral: nm("neutral0"),
+        kills: p.kills || 0, deaths: p.deaths || 0, assists: p.assists || 0, net_worth: p.net_worth ?? p.gold ?? 0,
+        gold_per_min: p.gpm || 0, xp_per_min: p.xpm || 0, last_hits: p.last_hits || 0, denies: p.denies || 0, hero_damage: p.hero_damage ?? null });
+    });
+  });
+  const win = m.win_team === "radiant" ? true : m.win_team === "dire" ? false : null;
+  return { players, radiant_win: win, radiant_score: m.radiant_score || 0, dire_score: m.dire_score || 0,
+           duration: Math.max(0, Math.round(m.clock_time ?? m.game_time ?? 0)), match_id: m.matchid, gsi: true };
+}
+
 function renderStats() {
   const el = document.getElementById("s-stats");
-  const id = String(S.mid || "").replace(/\D/g, "");
-  if (!id) { el.innerHTML = `<div class="msg">Статистика матча<small>Введи ID матча в пульте</small></div>`; return; }
-  if (STATS.id !== id) { loadStats(); }
-  const d = STATS.id === id ? STATS.data : null;
-  if (!d) { el.innerHTML = `<div class="msg">Матч ${id}<small>${esc(STATS.status || "Загружаем статистику…")}</small></div>`; return; }
-  if (el.dataset.key === id + "|" + !!HEROES + "|" + S.swap + "|" + S.match) return;   // уже нарисовано
-  el.dataset.key = id + "|" + !!HEROES + "|" + S.swap + "|" + S.match;
+  const draw = html => { if (el.dataset.html !== html) { el.innerHTML = html; el.dataset.html = html; } };
+  let d, id;
+  if ((S.src || "gsi") === "gsi") {
+    d = GSI.data; id = d?.match_id || "";
+    if (!d || d.players.length !== 10) return draw(`<div class="msg">Статистика матча<small>${GSI.ok ? "Сервер HUD запущен, ждём данные из Доты: зайди в лобби зрителем." : "Нет связи с сервером HUD. Запусти stream/start-hud.bat."}</small></div>`);
+  } else {
+    id = String(S.mid || "").replace(/\D/g, "");
+    if (!id) return draw(`<div class="msg">Статистика матча<small>Введи ID матча в пульте</small></div>`);
+    if (STATS.id !== id) { loadStats(); }
+    d = STATS.id === id ? STATS.data : null;
+    if (!d) return draw(`<div class="msg">Матч ${id}<small>${esc(STATS.status || "Загружаем статистику…")}</small></div>`);
+  }
 
   const rad = d.players.filter(p => p.player_slot < 128), dire = d.players.filter(p => p.player_slot >= 128);
   // команда стороны — по большинству известных игроков; иначе как на плашках (слева Radiant)
@@ -570,26 +617,30 @@ function renderStats() {
 
   const all = d.players, kda = p => (p.kills + p.assists) / Math.max(1, p.deaths);
   const max = f => Math.max(...all.map(f));
-  const best = { nw: max(p => p.net_worth || 0), gpm: max(p => p.gold_per_min || 0), lh: max(p => p.last_hits || 0), dmg: max(p => p.hero_damage || 0), kda: max(kda) };
-  const winners = d.radiant_win ? rad : dire, mvp = winners.slice().sort((x, y) => kda(y) - kda(x) || (y.hero_damage || 0) - (x.hero_damage || 0))[0];
-  const k = n => n >= 1000 ? (n / 1000).toFixed(1).replace(".0", "") + "k" : String(n || 0);
+  const best = { nw: max(p => p.net_worth || 0), lh: max(p => p.last_hits || 0), dmg: max(p => p.hero_damage || 0), kda: max(kda) };
+  const done = d.radiant_win === true || d.radiant_win === false;
+  const IMG = "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/";
+  const itemImg = n => n ? `<img src="${IMG}${n.startsWith("recipe_") ? "recipe" : n}.png" alt="" onerror="this.style.visibility='hidden'">` : `<i></i>`;
+  const items = p => p.items ? `<span class="it">${p.items.map(itemImg).join("")}<b class="nt">${p.neutral ? itemImg(p.neutral) : ""}</b></span>` : `<span class="it"></span>`;
+  const k = n => n === null || n === undefined ? "—" : n >= 1000 ? (n / 1000).toFixed(1).replace(".0", "") + "k" : String(n || 0);
   const B_ = (v, m) => v === m && m > 0 ? ' class="best"' : "";
   const hero = p => HEROES?.[p.hero_id] ? `<img src="https://cdn.cloudflare.steamstatic.com${HEROES[p.hero_id].img}" alt="">` : `<span></span>`;
   const row = p => { const a = ACC[p.account_id], nick = a ? a[1] : (p.personaname || "Игрок");
     const hn = HEROES?.[p.hero_id]?.localized_name || "";
-    return `<div class="row"><span class="z"></span>${hero(p)}<span class="pl">${esc(nick)}<small>${esc(hn)}</small>${p === mvp ? '<span class="mvp">MVP</span>' : ""}</span>
-      <span class="kda${kda(p) === best.kda ? " best" : ""}"><b>${p.kills}</b> / ${p.deaths} / ${p.assists}</span><span${B_(p.net_worth, best.nw)}>${k(p.net_worth)}</span>
-      <span${B_(p.gold_per_min, best.gpm)}>${p.gold_per_min} / ${p.xp_per_min}</span><span${B_(p.last_hits, best.lh)}>${p.last_hits} / ${p.denies}</span><span${B_(p.hero_damage, best.dmg)}>${k(p.hero_damage)}</span></div>`; };
-  const head = `<div class="row hd"><span class="z"></span><span>Герой</span><span class="pl">Игрок</span><span>У / С / П</span><span>Нетворс</span><span>GPM / XPM</span><span>Добито</span><span>Урон</span></div>`;
+    return `<div class="row"><span class="z"></span>${hero(p)}<span class="pl">${esc(nick)}<small>${esc(hn)}</small></span>
+      <span class="lv">${p.level ?? "—"}</span>
+      <span class="kda${kda(p) === best.kda ? " best" : ""}">${p.kills} / ${p.deaths} / ${p.assists}</span><span${B_(p.net_worth, best.nw)}>${k(p.net_worth)}</span>
+      <span${B_(p.last_hits, best.lh)}>${p.last_hits} / ${p.denies}</span><span${B_(p.hero_damage, best.dmg)}>${k(p.hero_damage)}</span>${items(p)}</div>`; };
+  const head = `<div class="row hd"><span class="z"></span><span>Герой</span><span class="pl">Игрок</span><span>Ур.</span><span>У / С / П</span><span>Нетворс</span><span>Добито</span><span>Урон</span><span class="it">Предметы</span></div>`;
   const dur = `${Math.floor(d.duration / 60)}:${String(d.duration % 60).padStart(2, "0")}`;
   const tm = (t, side, win, r) => `<div class="tm${r ? " r" : ""}"><img src="${LOGO(t)}" alt=""><div>${esc(TEAMS[t].name)}<br>
     <span class="tg ${side === "Radiant" ? "rad" : "dire"}">${side}</span>${win ? '<span class="tg win">Победа</span>' : ""}</div></div>`;
-  el.innerHTML = `<div class="top">${tm(tR, "Radiant", d.radiant_win, false)}
-      <div class="mid"><div class="kicker">Итоги игры</div><div class="k">${d.radiant_score}<span class="sep">:</span>${d.dire_score}</div><div class="dur">убийства · ${dur}</div></div>
-      ${tm(tD, "Dire", !d.radiant_win, true)}</div>
+  draw(`<div class="top">${tm(tR, "Radiant", d.radiant_win === true, false)}
+      <div class="mid"><div class="kicker">${done ? "Итоги игры" : "Идёт игра"}</div><div class="k">${d.radiant_score}<span class="sep">:</span>${d.dire_score}</div></div>
+      ${tm(tD, "Dire", d.radiant_win === false, true)}</div>
     <div class="tbl t1">${head}${rad.map(row).join("")}</div>
     <div class="tbl t2">${head}${dire.map(row).join("")}</div>
-    <div class="src">Данные OpenDota · матч ${id}</div>`;
+    <div class="src">${d.gsi ? "Данные из клиента Доты" : "Данные OpenDota"}${id ? " · матч " + id : ""}</div>`);
 }
 
 // название на плашке уменьшается, пока не влезет целиком (от 26 до 16 px)
@@ -630,7 +681,8 @@ const ctl = document.getElementById("ctl");
 const set = patch => { Object.assign(S, patch, { v: Date.now() }); save(); render(); publish(); };
 document.getElementById("ctl-toggle").onclick = () => ctl.classList.toggle("open");
 addEventListener("keydown", e => { if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; if (e.key.toLowerCase() === "c" || e.key.toLowerCase() === "с") ctl.classList.toggle("open"); });
-const goStats = () => { const v = document.getElementById("c-mid").value.replace(/\D/g, ""); if (v) set({ mid: v, scene: "stats" }); };
+const goStats = () => { const v = document.getElementById("c-mid").value.replace(/\D/g, ""); if (v) set({ mid: v, src: "od", scene: "stats" }); };
+document.getElementById("c-gsi").onclick = () => set({ src: "gsi", scene: "stats" });
 document.getElementById("c-mid-go").onclick = goStats;
 document.getElementById("c-mid").onkeydown = e => { if (e.key === "Enter") goStats(); };
 document.getElementById("c-trans").onclick = () => set({ trans: !S.trans });
@@ -653,6 +705,7 @@ document.getElementById("c-cam").onclick = () => set({ cam: !S.cam });
 if (IS_PANEL) document.title = "Турич — пульт HUD";
 fit();
 renderSync(); subscribe();
+loadGSI(); setInterval(loadGSI, 2000);
 setInterval(tick, 1000);
 async function load() {
   try {
